@@ -2,7 +2,7 @@
 
 > 更新日期：2026-08-15
 > 分支：`codex/three-lesson-slice`
-> 当前阶段：M1-M3 已实现，M4 工程验证进行中，M4 真人测试与 M5 Pages 未开始
+> 当前阶段：M1-M3 与 M4 工程验证已完成，M4 真人测试与 M5 Pages 未开始
 
 ## 已交付
 
@@ -23,15 +23,16 @@
 
 - TypeScript、Oxlint、Vitest 和 Vite production build 通过。
 - Playwright 覆盖三课主流程、搜索、刷新恢复、清除、390 px 首屏、键盘、axe 和无远程资源请求。
-- production build 首屏 JavaScript 为 `103.20 kB gzip`，低于 `180 KiB` 预算。
+- production build 首屏 JavaScript 为 `103.21 kB gzip`，低于 `180 KiB` 预算。
 - 截图位于 `artifacts/screenshots/`。
 - 事实 claim 的 DSH focused tests 在固定提交工作区通过：3 个测试文件，247 个测试。
+- PR #1 的 GitHub Actions `check` 已通过；真实 production build GIF 已嵌入 PR。
+- `main` 要求 PR、最新 `check`、线性历史和会话解决，并禁止强推与删除。
 
 ## 尚未完成
 
 - M4 独立于 M0 的 5 人 production build 测试。
 - VoiceOver 人工名称、顺序和状态播报记录。
-- 真实构建 GIF 与 PR 审查。
 - M4 通过后的 GitHub Pages 工作流和生产 URL 冷启动验证。
 
 这些项目完成前只称为“可用原型”，不称为已验证产品或公开发布版本。

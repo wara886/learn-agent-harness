@@ -1,10 +1,23 @@
-/** M1 application shell; three lesson behavior lands on the feature branch. */
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AppHeader } from './components/AppHeader.tsx'
+import { ProgressProvider } from './domain/progress.tsx'
+import { EvidencePage } from './pages/EvidencePage.tsx'
+import { LessonPage } from './pages/LessonPage.tsx'
+import { MapPage } from './pages/MapPage.tsx'
+
 export function App() {
   return (
-    <main className="foundation-shell">
-      <p className="foundation-count">三课纵向切片</p>
-      <h1>从一次任务开始，看懂 DeepSeek Harness</h1>
-      <p>React + TypeScript + Vite 基础已经就绪。</p>
-    </main>
+    <ProgressProvider>
+      <div className="app-shell">
+        <AppHeader />
+        <Routes>
+          <Route path="/" element={<LessonPage home />} />
+          <Route path="/learn/:slug" element={<LessonPage />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/evidence/:claimId" element={<EvidencePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </ProgressProvider>
   )
 }

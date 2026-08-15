@@ -1,0 +1,7 @@
+--- /dev/null
++++ prototype/m0/index.html
+@@ new M0 artifact @@
++A framework-free clickable prototype for the frozen three-lesson flow.
++The first viewport contains the task, expected result, prediction, and primary action.
++Desktop and 390 px navigation share the same lesson state model.
++The file preserves the M0 rule that React/Vite scaffolding begins only after five-person validation.

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Learn DeepSeek Harness M0 可点击低保真原型" />
+    <link rel="icon" href="data:," />
+    <title>看懂 DSH - M0 低保真原型</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!--
+      impeccable:m0-task-classroom
+      THESIS: One task, one main action, and one visible state change precede terminology; no catalog-first documentation homepage.
+      OWN-WORLD: A quiet daytime classroom workbench for developers, expressed through a stable three-row trace.
+      FIRST-VIEW: The task, expected result, prediction, and primary action remain visible before navigation or engineering detail.
+      RESPONSIVE: Desktop uses a lesson rail; 390 px uses a compact top switcher and one-column controls.
+      RISK: Low fidelity validates hierarchy and comprehension only; it does not authorize production styling.
+    -->
+    <div class="prototype-shell">
+      <aside class="lesson-rail" aria-label="三课导航">
+        <a class="wordmark" href="#lesson-01">看懂 DSH</a>
+        <p class="rail-context">三课任务原型</p>
+        <nav class="lesson-list" aria-label="选择课程">
+          <button class="lesson-link is-active" type="button" data-lesson="0">
+            <span class="lesson-index">1</span>
+            <span>先查再答</span>
+          </button>
+          <button class="lesson-link" type="button" data-lesson="1">
+            <span class="lesson-index">2</span>
+            <span>记录变消息</span>
+          </button>
+          <button class="lesson-link" type="button" data-lesson="2">
+            <span class="lesson-index">3</span>
+            <span>加入再撤下</span>
+          </button>
+        </nav>
+        <div class="rail-note">
+          <span class="status-dot" aria-hidden="true"></span>
+          本地确定性演示
+        </div>
+      </aside>
+
+      <div class="lesson-stage">
+        <header class="mobile-header">
+          <a class="wordmark" href="#lesson-01">看懂 DSH</a>
+          <span id="mobile-progress">第 1 课 / 3</span>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="选择课程">
+          <button class="mobile-tab is-active" type="button" data-lesson="0">先查再答</button>
+          <button class="mobile-tab" type="button" data-lesson="1">记录变消息</button>
+          <button class="mobile-tab" type="button" data-lesson="2">加入再撤下</button>
+        </nav>
+
+        <main id="lesson" tabindex="-1">
+          <header class="task-header">
+            <p class="lesson-count" id="lesson-count">第 1 课，共 3 课</p>
+            <h1 id="lesson-title">找出发布端口，并说明依据</h1>
+            <dl class="task-meta">
+              <div>
+                <dt>你会得到</dt>
+                <dd id="lesson-outcome">端口值、来源行和明确停止状态</dd>
+              </div>
+              <div>
+                <dt>预计用时</dt>
+                <dd id="lesson-time">2 分钟</dd>
+              </div>
+              <div>
+                <dt>运行方式</dt>
+                <dd>本地演示，无 API 费用</dd>
+              </div>
+            </dl>
+          </header>
+
+          <section class="prediction-section" aria-labelledby="prediction-title">
+            <h2 id="prediction-title">先做一个判断</h2>
+            <p id="prediction-question">Agent 下一步应该直接回答，还是先读取工作区？</p>
+            <div class="segmented" id="prediction-options" role="group" aria-label="选择你的预测"></div>
+            <button class="primary-action" id="primary-action" type="button">启动任务</button>
+          </section>
+
+          <section class="trace-section" aria-labelledby="trace-title">
+            <div class="section-heading">
+              <h2 id="trace-title">任务过程</h2>
+              <span class="run-state" id="run-state" aria-live="polite">等待启动</span>
+            </div>
+            <ol class="trace-list" id="trace-list"></ol>
+            <div class="experiment-row" id="experiment-row" hidden></div>
+          </section>
+
+          <section class="reflection-section" id="reflection-section" aria-labelledby="reflection-title" hidden>
+            <h2 id="reflection-title">刚才真正改变了什么？</h2>
+            <p id="reflection-question"></p>
+            <div class="reflection-options" id="reflection-options"></div>
+            <p class="reflection-feedback" id="reflection-feedback" role="status"></p>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="./prototype.js"></script>
+  </body>
+</html>

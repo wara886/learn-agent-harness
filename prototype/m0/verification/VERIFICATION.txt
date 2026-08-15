@@ -1,0 +1,27 @@
+CHANGED_BRANCH_OR_FIELD=M0 task-classroom prototype / primary action and three-state trace
+ORIGINAL_STATE=absent
+ORIGINAL_SHA256=ABSENT
+MODIFIED_SHA256=926999d09cbd3245925fefb7897e672309bd68a12b76998e57586964dc282672
+MODIFIED_FILE=/Users/yuan_dian/AI_project/learn-deepseek-harness/prototype/m0/index.html
+DIFF_FILE=/Users/yuan_dian/AI_project/learn-deepseek-harness/prototype/m0/verification/DIFF_FILE
+VERIFICATION_FILE=/Users/yuan_dian/AI_project/learn-deepseek-harness/prototype/m0/verification/VERIFICATION.txt
+ROLLBACK_FILE=/Users/yuan_dian/AI_project/learn-deepseek-harness/prototype/m0/verification/ROLLBACK.sh
+
+BASELINE_COMMAND=test ! -e /tmp/m0-baseline-20260815-never-created.html && printf 'BASELINE=prototype absent\n'
+BASELINE_INPUT=/tmp/m0-baseline-20260815-never-created.html
+BASELINE_LITERAL_OUTPUT=BASELINE=prototype absent
+BASELINE_EXIT_STATUS=0
+
+MODIFIED_COMMAND=rg -n '找出发布端口|id="primary-action"|id="trace-list"' prototype/m0/index.html
+MODIFIED_INPUT=/Users/yuan_dian/AI_project/learn-deepseek-harness/prototype/m0/index.html
+MODIFIED_LITERAL_OUTPUT=59:            <h1 id="lesson-title">找出发布端口，并说明依据</h1>
+MODIFIED_LITERAL_OUTPUT=80:            <button class="primary-action" id="primary-action" type="button">启动任务</button>
+MODIFIED_LITERAL_OUTPUT=88:            <ol class="trace-list" id="trace-list"></ol>
+MODIFIED_EXIT_STATUS=0
+
+ROLLBACK_COMMAND=cp prototype/m0/index.html /tmp/m0-rollback-copy-20260815.html && prototype/m0/verification/ROLLBACK.sh /tmp/m0-rollback-copy-20260815.html && test ! -e /tmp/m0-rollback-copy-20260815.html && printf 'ROLLBACK_VERIFY=prototype copy absent\n'
+ROLLBACK_INPUT=/tmp/m0-rollback-copy-20260815.html
+ROLLBACK_LITERAL_OUTPUT=ROLLBACK=removed /tmp/m0-rollback-copy-20260815.html
+ROLLBACK_LITERAL_OUTPUT=ROLLBACK_VERIFY=prototype copy absent
+ROLLBACK_EXIT_STATUS=0
+RESTORED_BEHAVIOR_OR_STATUS=The rollback copy returned to the pre-M0 absent state; MODIFIED_FILE remains present and changed.

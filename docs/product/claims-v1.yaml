@@ -1,0 +1,122 @@
+schemaVersion: 1
+registry: learn-deepseek-harness-three-slice-claims-v1
+repository: deepseek-harness
+baseline: 47f943859bef60e4160492346772ded9b24f765a
+frozenAt: 2026-08-15
+reviewRecord: docs/product/M0-CONTENT-REVIEW.md
+claims:
+  - id: dsh-agent-loop-tool-round-trip
+    statement: >-
+      ReactLoopAgent 在一个完整 assistant message 中发现 tool-call 内容后，会执行这些调用并把 tool/call 与 tool/result 追加到 Session；未被结论型工具结束的结果会进入后续模型请求，assistant message 没有 tool-call 时该步以 completed 结束。
+    classification: product-fact
+    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    evidence:
+      - path: packages/core/agent-loop/src/agent.ts
+        symbol: ReactLoopAgent.step
+      - path: packages/core/agent-loop/src/tool-calls.ts
+        symbol: executeToolCalls
+      - path: packages/core/agent-loop/src/tool-calls.ts
+        symbol: appendToolCall/appendToolResult
+      - path: packages/core/agent-loop/tests/loop.spec.ts
+        test: "round-trips tool calls: model requests tool → executes → result in next request"
+    caveat: >-
+      该声明只描述固定提交的默认循环路径，不保证模型会正确选择工具或忠实使用结果；max-tokens、取消、结论型工具、steering、失败结果与并行调度有额外分支。课程的“拒绝编造”来自确定性教学规则，不是 DSH 对任意模型输出的保证。
+    usedBy:
+      - lesson-01-tool-first-answer
+    reviewStatus: approved
+
+  - id: dsh-tools-execute-waterfall
+    statement: >-
+      tools/execute 是 waterfall 事件；ToolRuntime 在分派单个已接受的工具执行时通过 ctx.waterfall 调用监听器，并以工具 body 作为末端 next。
+    classification: product-fact
+    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    evidence:
+      - path: packages/core/tools/src/index.ts
+        symbol: "Events['tools/execute']"
+      - path: packages/core/tools/src/index.ts
+        symbol: ToolRuntime.dispatchScheduledExecution
+    caveat: >-
+      waterfall 描述单个工具调用的监听器分派方式，不等于多个工具调用的并发策略；批量调用是否重叠由 agent-loop 调度和工具的执行模式另行决定。
+    usedBy:
+      - lesson-01-tool-first-answer
+    reviewStatus: approved
+
+  - id: dsh-session-append-only-source
+    statement: >-
+      SessionEventMap 定义的 Session 事件日志是追加式、可持久化的交互事实来源；Session.deriveMessages 不是直接返回全部事件，而是沿当前有序 surface 调用 deriveEventMessage 得到模型消息。
+    classification: product-fact
+    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    evidence:
+      - path: packages/core/session/src/types.ts
+        symbol: SessionEventMap
+      - path: packages/core/session/src/index.ts
+        symbol: Session.append
+      - path: packages/core/session/src/index.ts
+        symbol: Session.deriveMessages
+      - path: packages/core/session/tests/surface.spec.ts
+        test: uses the surface path when surface markers are present
+    caveat: >-
+      “追加式”描述事件日志，不能推导为模型永远看到全部历史；surface replace 可以让旧 surface 节点不再参与派生消息，而原事件仍留在日志。持久化 backend、seed、格式版本和缓存不是本课结论的一部分。
+    usedBy:
+      - lesson-02-log-to-model-view
+    reviewStatus: approved
+
+  - id: dsh-session-surface-projection
+    statement: >-
+      固定提交中只有 user/message、assistant/message 和 tool/result 属于 SurfaceEventType；deriveEventMessage 对其他事件返回 null，因此 turn/step 边界、assistant/chunk、todo/write 与 request/header 等 log-only 记录不会各自生成模型消息。
+    classification: product-fact
+    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    evidence:
+      - path: packages/core/session/src/types.ts
+        symbol: SurfaceEventType
+      - path: packages/core/session/src/surface.ts
+        symbol: deriveEventMessage
+      - path: packages/core/session/tests/surface.spec.ts
+        test: surface path skips non-surface events (chunks, boundaries)
+      - path: packages/core/session/src/types.ts
+        symbol: "SessionEventMap['todo/write']"
+    caveat: >-
+      assistant/message 即使是 surface 节点，在 content 为空时也会投影为 null。tool/call 不是独立 surface 事件；模型请求的调用内容位于 assistant message 中。replace 与 sourceEventSeqs 的完整规则留到后续课程。
+    usedBy:
+      - lesson-02-log-to-model-view
+    reviewStatus: approved
+
+  - id: dsh-tools-registration-visible
+    statement: >-
+      ToolRuntime.register 把通过校验的工具定义加入当前注册层；ToolRuntime.schemas 从当前可见工具生成模型侧 schema，system-prompt assembly 会收到已注册工具的 schema。
+    classification: product-fact
+    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    evidence:
+      - path: packages/core/tools/src/index.ts
+        symbol: ToolRuntime.register
+      - path: packages/core/tools/src/index.ts
+        symbol: ToolRuntime.schemas
+      - path: packages/core/tools/tests/tools.spec.ts
+        test: registers tools, exposes schemas, and feeds the system-prompt assembly
+    caveat: >-
+      schema 可见性受 scope、shadowing、工具呈现模式和注册校验影响；schemas 只投影模型需要的字段，不暴露 execute、presentation callback 或 timeoutMs。课程只演示单一全局可见工具。
+    usedBy:
+      - lesson-03-register-and-remove-tool
+    reviewStatus: approved
+
+  - id: dsh-tools-registration-disposer
+    statement: >-
+      ToolRuntime.register 通过 ScopedLayers.effect 建立注册并返回 ctx.effect 的 exact disposer；调用该 disposer 会撤销工具注册，拥有该注册的插件 fiber 释放时也会移除工具。
+    classification: product-fact
+    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    evidence:
+      - path: packages/core/tools/src/index.ts
+        symbol: ToolRuntime.register
+      - path: packages/core/scope/src/store.ts
+        symbol: ScopedLayers.effect
+      - path: packages/core/tools/tests/tools.spec.ts
+        test: returns a callable disposer from register() that unregisters the tool
+      - path: packages/core/tools/tests/tools.spec.ts
+        test: rejects duplicate names and unregisters on fiber dispose (HMR safety)
+      - path: packages/core/tools/tests/tools.spec.ts
+        test: "register() returns the EXACT effect disposer: a composite yield nests the teardown in order"
+    caveat: >-
+      disposer 只撤销它拥有的那次注册；真实 teardown 还受 Cordis effect 的 LIFO 次序、scope 生命周期和异步 fiber quiescence 影响。课程中的同步开关不复现这些时序细节。
+    usedBy:
+      - lesson-03-register-and-remove-tool
+    reviewStatus: approved

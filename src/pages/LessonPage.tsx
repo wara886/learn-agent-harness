@@ -1,20 +1,17 @@
-import { ArrowLeft, ArrowRight, Check, ChevronDown, FlaskConical, Play, RotateCcw } from 'lucide-react'
-import { useEffect, useMemo, useReducer, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronRight, Clock3, FlaskConical, Play, RotateCcw, Target, Zap } from 'lucide-react'
+import { useEffect, useReducer, useRef } from 'react'
+import { Link, Navigate, useParams } from 'react-router-dom'
+import { CourseNavigation } from '../components/CourseNavigation.tsx'
 import { runnerStatusLabel, TracePanel } from '../components/TracePanel.tsx'
 import { claimsById, upstreams } from '../domain/claims.ts'
 import { lessonTracks, lessons, lessonsBySlug, lessonsByTrack, lessonPath, type Lesson } from '../domain/lessons.ts'
 import { useProgress } from '../domain/progress.tsx'
 import { restoreRunnerState, runnerReducer } from '../domain/runner.ts'
 
-function currentLesson(slug: string | undefined, home: boolean): Lesson {
-  if (home) return lessons[0]!
-  return lessonsBySlug.get(slug ?? '') ?? lessons[0]!
-}
-
 export function LessonPage({ home = false }: { home?: boolean }) {
   const { slug } = useParams()
-  const lesson = currentLesson(slug, home)
+  const lesson = home ? lessons[0] : lessonsBySlug.get(slug ?? '')
+  if (lesson === undefined) return <Navigate to="/" replace />
   return <LessonExperience key={lesson.slug} lesson={lesson} home={home} />
 }
 
@@ -59,7 +56,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
     heading?.focus({ preventScroll: true })
     heading?.scrollIntoView({
       block: 'start',
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      behavior: 'auto',
     })
   }, [state.phase])
 
@@ -70,15 +67,6 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       ? '已记录。现在运行，观察它是否符合你的判断。'
       : '已记录。不同判断也可以继续，结果会帮助你校正。'
 
-  const lessonLinks = useMemo(() => trackLessons.map((candidate, index) => {
-    const value = data.lessons[candidate.slug]
-    return {
-      lesson: candidate,
-      index,
-      completed: typeof value === 'object' && value !== null && 'phase' in value && value.phase === 'completed',
-    }
-  }), [data.lessons, trackLessons])
-
   function reset() {
     resetLesson(lesson.slug)
     dispatch({ type: 'reset' })
@@ -86,7 +74,9 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
   }
 
   return (
-    <main className="lesson-page" ref={mainRef} tabIndex={-1}>
+    <div className="lesson-layout">
+      <CourseNavigation currentLesson={lesson} />
+      <main className="lesson-page" id="main-content" ref={mainRef} tabIndex={-1}>
       {!storageAvailable && <div className="storage-notice" role="status">本次进度不会保存；当前课程仍可完整运行。</div>}
       {continueLesson && (
         <div className="continue-strip">
@@ -95,45 +85,22 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
         </div>
       )}
 
-      <nav className="track-switcher" aria-label="选择学习轨道">
-        {lessonTracks.map(item => {
-          const firstLesson = lessonsByTrack[item.id][0]!
-          return (
-            <Link
-              key={item.id}
-              to={lessonPath(firstLesson)}
-              aria-current={item.id === lesson.track ? 'page' : undefined}
-              className={item.id === lesson.track ? 'is-active' : ''}
-            >
-              <span>{item.shortLabel}</span>
-              <small>{lessonsByTrack[item.id].length} 课</small>
-            </Link>
-          )
-        })}
-      </nav>
-
-      <nav className={`lesson-switcher ${lessonLinks.length === 1 ? 'is-single' : ''}`} aria-label={`${track.shortLabel} 课程进度`}>
-        {lessonLinks.map(item => (
-          <Link
-            key={item.lesson.id}
-            to={lessonPath(item.lesson)}
-            aria-current={item.lesson.id === lesson.id ? 'page' : undefined}
-            className={item.lesson.id === lesson.id ? 'is-active' : ''}
-          >
-            <span>{item.completed ? <Check aria-hidden="true" /> : item.index + 1}</span>
-            {item.lesson.navLabel}
-          </Link>
-        ))}
+      <nav className="lesson-breadcrumbs" aria-label="当前位置">
+        <Link to="/map">学习路径</Link>
+        <ChevronRight aria-hidden="true" />
+        <span>{track.label}</span>
+        <ChevronRight aria-hidden="true" />
+        <span className="is-current" aria-current="page">{lesson.navLabel}</span>
       </nav>
 
       <header className="task-intro">
-        <div className="lesson-sequence">{track.shortLabel} 第 {lessonIndex + 1} 课，共 {trackLessons.length} 课</div>
+        <div className="lesson-sequence">{track.shortLabel} · 第 {lessonIndex + 1} 课 / 共 {trackLessons.length} 课</div>
         <h1>{lesson.title}</h1>
         <p className="lesson-question">{lesson.question}</p>
         <dl className="task-facts">
-          <div><dt>你会得到</dt><dd>{lesson.outcome}</dd></div>
-          <div><dt>预计用时</dt><dd>{lesson.minutes} 分钟</dd></div>
-          <div><dt>运行方式</dt><dd>概念演示 · 无 API 费用</dd></div>
+          <div><dt><Target aria-hidden="true" />你会得到</dt><dd>{lesson.outcome}</dd></div>
+          <div><dt><Clock3 aria-hidden="true" />预计用时</dt><dd>{lesson.minutes} 分钟</dd></div>
+          <div><dt><Zap aria-hidden="true" />运行方式</dt><dd>本地概念演示</dd></div>
         </dl>
       </header>
 
@@ -236,7 +203,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
             {lesson.claimIds.map(claimId => {
               const claim = claimsById.get(claimId)
               if (claim === undefined) return null
-              return <Link key={claimId} to={`/evidence/${claimId}`}>{claim.title}<ArrowRight aria-hidden="true" /></Link>
+              return <Link key={claimId} to={`/evidence/${claimId}`} state={{ from: lessonPath(lesson), label: lesson.navLabel }}>{claim.title}<ArrowRight aria-hidden="true" /></Link>
             })}
           </div>
         </details>
@@ -250,6 +217,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
             ? <Link to={lessonPath(nextTrackLesson)}><span><small>进入 Pi 对照</small>{nextTrackLesson.navLabel}</span><ArrowRight aria-hidden="true" /></Link>
             : <Link to="/map"><span><small>查看全貌</small>返回课程地图</span><ArrowRight aria-hidden="true" /></Link>}
       </nav>
-    </main>
+      </main>
+    </div>
   )
 }

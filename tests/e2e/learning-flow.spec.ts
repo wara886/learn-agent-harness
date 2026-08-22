@@ -22,9 +22,9 @@ test('completes the first lesson and persists progress', async ({ page }) => {
 })
 
 test('searches in problem language and runs the projection experiment', async ({ page }) => {
-  const search = page.getByRole('combobox', { name: '按问题搜索课程' })
+  const search = page.getByRole('searchbox', { name: '按问题搜索课程' })
   await search.fill('事件怎么变成消息')
-  await page.getByRole('button', { name: /聊天界面中的消息从哪里来/ }).click()
+  await page.getByRole('navigation', { name: '搜索结果' }).getByRole('link', { name: /聊天界面中的消息从哪里来/ }).click()
   await expect(page.getByRole('heading', { name: '从记录还原模型看到的消息' })).toBeVisible()
   await page.getByRole('button', { name: '只有完整记录增加' }).click()
   await page.getByRole('button', { name: '生成模型视图' }).click()
@@ -44,7 +44,10 @@ test('registers and removes a tool through the shared flow', async ({ page }) =>
 
 test('switches to Pi and completes the tool-result round trip', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.getByRole('navigation', { name: '选择学习轨道' }).getByRole('link', { name: /Pi/ }).click()
+  const directoryTrigger = page.getByRole('button', { name: /课程目录.*DSH/ })
+  await directoryTrigger.click()
+  await expect(directoryTrigger).toHaveAttribute('aria-expanded', 'true')
+  await page.getByRole('navigation', { name: '课程目录' }).getByRole('link', { name: /结果回到下一轮/ }).click()
   await expect(page.getByRole('heading', { name: '让 Pi 读出项目名称，再回答' })).toBeVisible()
   const actionBox = await page.getByRole('button', { name: '运行 Pi 工具闭环' }).boundingBox()
   expect(actionBox).not.toBeNull()
@@ -62,6 +65,15 @@ test('switches to Pi and completes the tool-result round trip', async ({ page })
   await page.getByRole('button', { name: '返回当前上下文并停止' }).click()
   await expect(page.getByText('没有工具调用或排队消息时，这次低层循环已经完成。')).toBeVisible()
   await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
+})
+
+test('shows the complete course directory and current location on desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const directory = page.getByRole('navigation', { name: '课程目录' })
+  await expect(directory).toBeVisible()
+  await expect(directory.getByRole('link')).toHaveCount(4)
+  await expect(directory.getByRole('link', { name: /先查再答/ })).toHaveAttribute('aria-current', 'page')
+  await expect(page.getByRole('navigation', { name: '当前位置' })).toContainText('DeepSeek Harness')
 })
 
 test('keeps the first task and action visible at 390px', async ({ page }) => {

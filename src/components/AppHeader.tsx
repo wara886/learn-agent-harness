@@ -42,7 +42,10 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <div className="header-inner">
-        <Link className="brand" to="/" aria-label="Learn Agent Harness 首页">看懂 Agent</Link>
+        <Link className="brand" to="/" aria-label="Learn Agent Harness 首页">
+          <strong>看懂 Agent</strong>
+          <small>Pi · DeepSeek Harness 入门</small>
+        </Link>
         <div className="course-progress" aria-label={`已完成 ${completed} 课，共 ${lessons.length} 课`}>
           <span>{completed}/{lessons.length}</span>
           <span className="progress-track" aria-hidden="true">
@@ -57,16 +60,15 @@ export function AppHeader() {
           <div className={`search-box ${searchOpen ? 'is-open' : ''}`}>
             <Search aria-hidden="true" />
             <input
+              type="search"
+              name="course-search"
+              autoComplete="off"
               ref={inputRef}
               value={query}
               onChange={event => { setQuery(event.target.value); setSearchOpen(true) }}
               onFocus={() => setSearchOpen(true)}
-              placeholder="按问题搜索"
-              role="combobox"
+              placeholder="按问题搜索…"
               aria-label="按问题搜索课程"
-              aria-autocomplete="list"
-              aria-expanded={searchOpen}
-              aria-controls="search-results"
             />
             {searchOpen && (
               <button className="search-close" type="button" onClick={() => { setSearchOpen(false); setQuery('') }} aria-label="关闭搜索">
@@ -74,27 +76,27 @@ export function AppHeader() {
               </button>
             )}
             {searchOpen && (
-              <div className="search-results" id="search-results">
+              <nav className="search-results" id="search-results" aria-label="搜索结果">
                 {results.length > 0 ? results.map(lesson => (
-                  <button key={lesson.id} type="button" onClick={() => navigate(lessonPath(lesson))}>
+                  <Link key={lesson.id} to={lessonPath(lesson)}>
                     <span>{lesson.question}</span>
                     <small>{lesson.navLabel}</small>
-                  </button>
+                  </Link>
                 )) : (
                   <div className="search-empty">
                     <p>没有找到对应课程</p>
                     {lessons.map(lesson => (
-                      <button key={lesson.id} type="button" onClick={() => navigate(lessonPath(lesson))}>{lesson.question}</button>
+                      <Link key={lesson.id} to={lessonPath(lesson)}>{lesson.question}</Link>
                     ))}
                     <Link to="/map">查看课程地图</Link>
                   </div>
                 )}
-              </div>
+              </nav>
             )}
           </div>
-          <Link className="text-action" to="/map" aria-label="课程地图">
+          <Link className="text-action" to="/map" aria-label="学习路径">
             <BookOpen aria-hidden="true" />
-            <span>课程地图</span>
+            <span>学习路径</span>
           </Link>
           <button className="icon-action" type="button" onClick={resetAll} title="清除全部进度">
             <Trash2 aria-hidden="true" />

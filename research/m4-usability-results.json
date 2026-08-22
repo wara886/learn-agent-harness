@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "buildVersion": "v0.2.0-beta.1",
+  "siteUrl": "https://wara886.github.io/learn-agent-harness/",
+  "sessions": [
+    {
+      "participantId": "P01",
+      "targetUserConfirmed": null,
+      "device": null,
+      "browser": null,
+      "firstResultSeconds": null,
+      "foundFirstResultUnaided": null,
+      "explainedStateChange": null,
+      "transferQuestionPassed": null,
+      "usedFacilitatorHelp": null,
+      "observations": [],
+      "quotes": []
+    },
+    {
+      "participantId": "P02",
+      "targetUserConfirmed": null,
+      "device": null,
+      "browser": null,
+      "firstResultSeconds": null,
+      "foundFirstResultUnaided": null,
+      "explainedStateChange": null,
+      "transferQuestionPassed": null,
+      "usedFacilitatorHelp": null,
+      "observations": [],
+      "quotes": []
+    },
+    {
+      "participantId": "P03",
+      "targetUserConfirmed": null,
+      "device": null,
+      "browser": null,
+      "firstResultSeconds": null,
+      "foundFirstResultUnaided": null,
+      "explainedStateChange": null,
+      "transferQuestionPassed": null,
+      "usedFacilitatorHelp": null,
+      "observations": [],
+      "quotes": []
+    },
+    {
+      "participantId": "P04",
+      "targetUserConfirmed": null,
+      "device": null,
+      "browser": null,
+      "firstResultSeconds": null,
+      "foundFirstResultUnaided": null,
+      "explainedStateChange": null,
+      "transferQuestionPassed": null,
+      "usedFacilitatorHelp": null,
+      "observations": [],
+      "quotes": []
+    },
+    {
+      "participantId": "P05",
+      "targetUserConfirmed": null,
+      "device": null,
+      "browser": null,
+      "firstResultSeconds": null,
+      "foundFirstResultUnaided": null,
+      "explainedStateChange": null,
+      "transferQuestionPassed": null,
+      "usedFacilitatorHelp": null,
+      "observations": [],
+      "quotes": []
+    }
+  ]
+}

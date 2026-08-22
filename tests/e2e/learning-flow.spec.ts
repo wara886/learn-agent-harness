@@ -16,9 +16,9 @@ test('completes the first lesson and persists progress', async ({ page }) => {
   await expect(page.getByText('无法从现有结果确认发布端口；任务已停止。')).toBeVisible()
   await page.getByRole('button', { name: '说明缺少依据并停止' }).click()
   await expect(page.getByText(/你抓住了因果链/)).toBeVisible()
-  await expect(page.getByLabel('已完成 1 课，共 3 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
   await page.reload()
-  await expect(page.getByLabel('已完成 1 课，共 3 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
 })
 
 test('searches in problem language and runs the projection experiment', async ({ page }) => {
@@ -42,28 +42,57 @@ test('registers and removes a tool through the shared flow', async ({ page }) =>
   await expect(page.getByText('目录不再包含该工具，同一任务进入能力不可用分支。')).toBeVisible()
 })
 
+test('switches to Pi and completes the tool-result round trip', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole('navigation', { name: '选择学习轨道' }).getByRole('link', { name: /Pi/ }).click()
+  await expect(page.getByRole('heading', { name: '让 Pi 读出项目名称，再回答' })).toBeVisible()
+  const actionBox = await page.getByRole('button', { name: '运行 Pi 工具闭环' }).boundingBox()
+  expect(actionBox).not.toBeNull()
+  expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(844)
+  await page.getByRole('button', { name: '执行工具，再把结果放回上下文' }).click()
+  await page.getByRole('button', { name: '运行 Pi 工具闭环' }).click()
+  await expect(page.getByRole('heading', { name: '任务过程' })).toBeFocused()
+  const traceHeadingBox = await page.getByRole('heading', { name: '任务过程' }).boundingBox()
+  expect(traceHeadingBox).not.toBeNull()
+  expect(traceHeadingBox!.y).toBeGreaterThanOrEqual(0)
+  expect(traceHeadingBox!.y + traceHeadingBox!.height).toBeLessThanOrEqual(844)
+  await expect(page.getByText('下一轮 assistant 根据结果回答项目名，随后循环停止。')).toBeVisible()
+  await page.getByRole('button', { name: '把工具结果改为 sandbox-demo' }).click()
+  await expect(page.getByText('确定性演示改为回答 sandbox-demo，随后循环停止。')).toBeVisible()
+  await page.getByRole('button', { name: '返回当前上下文并停止' }).click()
+  await expect(page.getByText('没有工具调用或排队消息时，这次低层循环已经完成。')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
+})
+
 test('keeps the first task and action visible at 390px', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeInViewport()
-  await expect(page.getByRole('button', { name: '启动任务' })).toBeInViewport()
+  const action = page.getByRole('button', { name: '启动任务' })
+  await expect(action).toBeInViewport()
+  const actionBox = await action.boundingBox()
+  expect(actionBox).not.toBeNull()
+  expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(844)
   const bodyWidth = await page.locator('body').evaluate(element => element.scrollWidth)
   expect(bodyWidth).toBe(390)
 })
 
 test('keeps every release viewport free of page overflow', async ({ page }) => {
+  const routes = ['/#/', '/#/learn/pi-tool-result-round-trip', '/#/map']
   for (const viewport of [
     { width: 390, height: 844 },
     { width: 768, height: 1024 },
     { width: 1440, height: 900 },
   ]) {
     await page.setViewportSize(viewport)
-    await page.reload()
-    await expect(page.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeVisible()
-    const dimensions = await page.locator('body').evaluate(element => ({
-      clientWidth: element.clientWidth,
-      scrollWidth: element.scrollWidth,
-    }))
-    expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+    for (const route of routes) {
+      await page.goto(route)
+      await expect(page.locator('main')).toBeVisible()
+      const dimensions = await page.locator('body').evaluate(element => ({
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+      }))
+      expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+    }
   }
 })
 

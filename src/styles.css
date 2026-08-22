@@ -326,6 +326,49 @@ h2 {
   text-decoration: none;
 }
 
+.track-switcher {
+  width: fit-content;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 1fr));
+  gap: 3px;
+  padding: 3px;
+  margin-bottom: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.track-switcher a {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px 10px;
+  color: var(--muted);
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.track-switcher a:hover {
+  color: var(--ink);
+  background: var(--surface-muted);
+}
+
+.track-switcher a.is-active {
+  color: #ffffff;
+  background: var(--teal-dark);
+}
+
+.track-switcher span {
+  font-weight: 760;
+}
+
+.track-switcher small {
+  color: inherit;
+  font-size: 12px;
+}
+
 .lesson-switcher {
   width: fit-content;
   display: grid;
@@ -336,6 +379,10 @@ h2 {
   background: #e2e6e2;
   border: 1px solid var(--line);
   border-radius: var(--radius);
+}
+
+.lesson-switcher.is-single {
+  grid-template-columns: minmax(220px, 1fr);
 }
 
 .lesson-switcher a {
@@ -538,6 +585,10 @@ h2 {
   background: #78837f;
   border-color: #78837f;
   cursor: not-allowed;
+}
+
+.mobile-run-status {
+  display: none;
 }
 
 .experiment-action {
@@ -886,6 +937,46 @@ h2 {
   line-height: 1.7;
 }
 
+.map-track {
+  padding-top: 36px;
+}
+
+.map-track + .map-track {
+  margin-top: 28px;
+}
+
+.map-track-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.map-track-header h2 {
+  margin-bottom: 6px;
+  font-size: 28px;
+}
+
+.map-track-header p {
+  max-width: 66ch;
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.map-track-header > span {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  color: var(--teal-dark);
+  background: var(--teal-soft);
+  border: 1px solid var(--teal);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 720;
+}
+
 .lesson-map {
   margin: 0;
   padding: 8px 0 0;
@@ -940,9 +1031,10 @@ h2 {
   font-weight: 720;
 }
 
-.map-copy h2 {
+.map-copy h3 {
   margin: 8px 0 6px;
   font-size: 26px;
+  line-height: 1.35;
 }
 
 .map-copy > p {
@@ -1135,12 +1227,24 @@ h2 {
   .map-page,
   .evidence-page {
     width: calc(100% - 28px);
-    padding: 14px 0 56px;
+    padding: 8px 0 56px;
   }
 
   .continue-strip {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .track-switcher {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 6px;
+  }
+
+  .track-switcher a {
+    min-width: 0;
+    min-height: 34px;
+    padding: 4px 8px;
   }
 
   .lesson-switcher {
@@ -1149,14 +1253,19 @@ h2 {
     z-index: 10;
     width: calc(100% + 28px);
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin: 0 -14px 22px;
+    margin: 0 -14px 14px;
     border-right: 0;
     border-left: 0;
     border-radius: 0;
   }
 
+  .lesson-switcher.is-single {
+    display: none;
+  }
+
   .lesson-switcher a {
     min-width: 0;
+    min-height: 38px;
     justify-content: center;
     padding: 6px 3px;
     overflow: hidden;
@@ -1170,11 +1279,12 @@ h2 {
   }
 
   .task-intro {
-    padding-bottom: 16px;
+    padding-bottom: 10px;
   }
 
   .task-intro h1 {
     max-width: 13ch;
+    margin-bottom: 8px;
   }
 
   .lesson-question {
@@ -1183,7 +1293,7 @@ h2 {
 
   .task-facts {
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 8px 14px;
   }
 
   .task-facts div:first-child {
@@ -1211,6 +1321,21 @@ h2 {
   .prediction-hint {
     min-height: 32px;
     margin: 8px 0;
+  }
+
+  .mobile-run-status {
+    display: block;
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 720;
+    text-align: center;
+  }
+
+  .mobile-run-status.phase-running,
+  .mobile-run-status.phase-observed,
+  .mobile-run-status.phase-experimenting {
+    color: var(--teal-dark);
   }
 
   .trace-row {
@@ -1253,6 +1378,14 @@ h2 {
     grid-template-columns: 34px minmax(0, 1fr);
     gap: 12px;
     min-height: 240px;
+  }
+
+  .map-track-header {
+    gap: 12px;
+  }
+
+  .map-track-header h2 {
+    font-size: 23px;
   }
 
   .lesson-map li::before {

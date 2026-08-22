@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { claimsById } from './claims.ts'
+import { claimsById, type UpstreamId } from './claims.ts'
 
 const traceSchema = z.object({
   label: z.string().min(1),
@@ -14,6 +14,7 @@ const optionSchema = z.object({
 
 export const lessonSchema = z.object({
   id: z.string().min(1),
+  track: z.enum(['dsh', 'pi']),
   slug: z.string().min(1),
   navLabel: z.string().min(1),
   title: z.string().min(1),
@@ -54,7 +55,12 @@ export const lessonSchema = z.object({
     context.addIssue({ code: 'custom', path: ['checkpoint', 'answerId'], message: 'Checkpoint answer must exist' })
   }
   for (const [index, claimId] of lesson.claimIds.entries()) {
-    if (!claimsById.has(claimId)) context.addIssue({ code: 'custom', path: ['claimIds', index], message: `Unknown claim ${claimId}` })
+    const claim = claimsById.get(claimId)
+    if (claim === undefined) {
+      context.addIssue({ code: 'custom', path: ['claimIds', index], message: `Unknown claim ${claimId}` })
+    } else if (claim.upstream !== lesson.track) {
+      context.addIssue({ code: 'custom', path: ['claimIds', index], message: `Claim ${claimId} belongs to ${claim.upstream}` })
+    }
   }
 })
 
@@ -63,6 +69,7 @@ export type Lesson = z.infer<typeof lessonSchema>
 const lessonInput: Lesson[] = [
   {
     id: 'lesson-01-tool-first-answer',
+    track: 'dsh',
     slug: 'first-tool-result',
     navLabel: '先查再答',
     title: '找出发布端口，并说明依据',
@@ -117,6 +124,7 @@ const lessonInput: Lesson[] = [
   },
   {
     id: 'lesson-02-log-to-model-view',
+    track: 'dsh',
     slug: 'log-to-model-view',
     navLabel: '记录变消息',
     title: '从记录还原模型看到的消息',
@@ -171,6 +179,7 @@ const lessonInput: Lesson[] = [
   },
   {
     id: 'lesson-03-register-and-remove-tool',
+    track: 'dsh',
     slug: 'register-and-remove-tool',
     navLabel: '加入再撤下',
     title: '加入一项能力，再完整撤下',
@@ -223,10 +232,75 @@ const lessonInput: Lesson[] = [
     searchTerms: ['怎么加工具', '插件怎么撤销', '为什么不用改主循环', 'plugin', 'effect', 'disposer'],
     claimIds: ['dsh-tools-registration-visible', 'dsh-tools-registration-disposer'],
   },
+  {
+    id: 'lesson-pi-01-tool-result-round-trip',
+    track: 'pi',
+    slug: 'pi-tool-result-round-trip',
+    navLabel: '结果回到下一轮',
+    title: '让 Pi 读出项目名称，再回答',
+    question: '工具执行完以后，为什么还要再进行一轮？',
+    outcome: '工具请求、结果消息和下一轮回答',
+    minutes: 7,
+    mechanism: 'Pi agent loop 的工具结果闭环',
+    prediction: {
+      prompt: 'assistant 发出 read toolCall 后，Pi 下一步应该做什么？',
+      options: [
+        { id: 'stop', label: '把工具调用当成最终答案' },
+        { id: 'round-trip', label: '执行工具，再把结果放回上下文' },
+        { id: 'discard', label: '执行工具，但丢弃结果' },
+      ],
+      preferredId: 'round-trip',
+    },
+    runLabel: '运行 Pi 工具闭环',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: 'assistant 请求工具', detail: 'assistant 产生 read toolCall，请求读取 package.json。', tone: 'request' },
+      { label: '追加工具结果', detail: 'Pi 执行 read，并把包含 learn-agent-harness 的 ToolResultMessage 加入上下文。', tone: 'action' },
+      { label: '下一轮形成回答', detail: '下一轮 assistant 根据结果回答项目名，随后循环停止。', tone: 'result' },
+    ],
+    experiment: {
+      label: '把工具结果改为 sandbox-demo',
+      trace: [
+        { label: '工具请求保持不变', detail: 'assistant 仍请求读取同一个 package.json。', tone: 'request' },
+        { label: '结果消息改变', detail: 'ToolResultMessage 中的项目名称改为 sandbox-demo。', tone: 'change' },
+        { label: '下一轮回答改变', detail: '确定性演示改为回答 sandbox-demo，随后循环停止。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: 'assistant 已经给出普通文本回答，且没有工具调用或排队消息时，低层循环应该怎样做？',
+      options: [
+        { id: 'stop', label: '返回当前上下文并停止' },
+        { id: 'repeat', label: '无条件再请求一次模型' },
+        { id: 'delete', label: '删除刚才的回答' },
+      ],
+      answerId: 'stop',
+      success: '对。没有工具调用或排队消息时，这次低层循环已经完成。',
+      retry: '先观察循环继续的条件：工具调用和排队消息都不存在时，没有新的动作需要执行。',
+    },
+    explanation: 'Pi 不把 toolCall 当成任务结果。它先执行工具，把结果保存成 ToolResultMessage，再把更新后的上下文交给下一轮模型。这个来回过程属于 agent loop；ToolResultMessage 是工具执行后回到上下文的结果消息。',
+    terms: [
+      { term: 'Pi agent loop', definition: '在回答、工具执行和排队消息之间推进上下文的低层循环。' },
+      { term: 'toolCall', definition: 'assistant 请求运行某个工具及其参数。' },
+      { term: 'ToolResultMessage', definition: '工具执行后被追加到 Agent 上下文的结果消息。' },
+    ],
+    minimalCode: `while (true) {\n  const assistant = await streamAssistantResponse(context)\n  context.messages.push(assistant)\n  const calls = collectToolCalls(assistant)\n  if (calls.length === 0) return context\n  context.messages.push(...await executeToolCalls(calls))\n}`,
+    teachingLimit: '演示使用固定输入和确定性下一轮回答，不调用真实 Provider，也不保证任意模型都会忠实采用工具结果。真实 Pi 还处理并行或顺序执行、steering、follow-up、hook 和中止信号。',
+    searchTerms: ['Pi 怎么执行工具', '工具结果放在哪里', '为什么还要下一轮', 'tool result message', 'pi agent loop'],
+    claimIds: ['pi-agent-loop-tool-round-trip'],
+  },
 ]
 
-export const lessons = z.array(lessonSchema).length(3).parse(lessonInput)
+export const lessonTracks: ReadonlyArray<{ id: UpstreamId; shortLabel: string; label: string; description: string }> = [
+  { id: 'dsh', shortLabel: 'DSH', label: 'DeepSeek Harness', description: '从工具、Session 和插件生命周期理解可扩展 Agent runtime。' },
+  { id: 'pi', shortLabel: 'Pi', label: 'Pi Agent Harness', description: '从消息、工具闭环和 Extension 理解轻量 Agent harness。' },
+]
+
+export const lessons = z.array(lessonSchema).length(4).parse(lessonInput)
 export const lessonsBySlug = new Map(lessons.map(lesson => [lesson.slug, lesson]))
+export const lessonsByTrack: Record<UpstreamId, Lesson[]> = {
+  dsh: lessons.filter(lesson => lesson.track === 'dsh'),
+  pi: lessons.filter(lesson => lesson.track === 'pi'),
+}
 
 export function lessonPath(lesson: Lesson): string {
   return `/learn/${lesson.slug}`

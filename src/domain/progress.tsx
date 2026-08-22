@@ -2,8 +2,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { z } from 'zod'
 import type { RunnerState } from './runner.ts'
 
-const storageKey = 'learn-dsh-progress-v1'
-const contentVersion = 1
+const storageKey = 'learn-agent-harness-progress-v2'
+const legacyStorageKey = 'learn-dsh-progress-v1'
+const contentVersion = 2
 
 const progressSchema = z.object({
   contentVersion: z.literal(contentVersion),
@@ -12,7 +13,7 @@ const progressSchema = z.object({
 })
 
 interface ProgressData {
-  contentVersion: 1
+  contentVersion: 2
   lastLesson?: string
   lessons: Record<string, unknown>
 }
@@ -31,9 +32,20 @@ const ProgressContext = createContext<ProgressContextValue | null>(null)
 function loadProgress(): { data: ProgressData; storageAvailable: boolean } {
   try {
     const value = window.localStorage.getItem(storageKey)
-    if (value === null) return { data: emptyProgress, storageAvailable: true }
-    const parsed = progressSchema.safeParse(JSON.parse(value))
-    return { data: parsed.success ? parsed.data : emptyProgress, storageAvailable: true }
+    if (value !== null) {
+      const parsed = progressSchema.safeParse(JSON.parse(value))
+      return { data: parsed.success ? parsed.data : emptyProgress, storageAvailable: true }
+    }
+
+    const legacyValue = window.localStorage.getItem(legacyStorageKey)
+    if (legacyValue === null) return { data: emptyProgress, storageAvailable: true }
+    const legacy = z.object({
+      contentVersion: z.literal(1),
+      lastLesson: z.string().optional(),
+      lessons: z.record(z.string(), z.unknown()),
+    }).safeParse(JSON.parse(legacyValue))
+    if (!legacy.success) return { data: emptyProgress, storageAvailable: true }
+    return { data: { ...legacy.data, contentVersion }, storageAvailable: true }
   } catch {
     return { data: emptyProgress, storageAvailable: false }
   }
@@ -48,6 +60,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     if (!storageAvailable) return
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(data))
+      window.localStorage.removeItem(legacyStorageKey)
     } catch {
       setStorageAvailable(false)
     }

@@ -34,7 +34,7 @@ export function AppHeader() {
   }
 
   function resetAll() {
-    if (!window.confirm('清除三课的全部本地进度？')) return
+    if (!window.confirm(`清除 ${lessons.length} 课的全部本地进度？`)) return
     clearAll()
     navigate('/')
   }
@@ -43,8 +43,8 @@ export function AppHeader() {
     <header className="app-header">
       <div className="header-inner">
         <Link className="brand" to="/" aria-label="Learn Agent Harness 首页">看懂 Agent</Link>
-        <div className="course-progress" aria-label={`已完成 ${completed} 课，共 3 课`}>
-          <span>{completed}/3</span>
+        <div className="course-progress" aria-label={`已完成 ${completed} 课，共 ${lessons.length} 课`}>
+          <span>{completed}/{lessons.length}</span>
           <span className="progress-track" aria-hidden="true">
             <span style={{ width: `${completed / lessons.length * 100}%` }} />
           </span>
@@ -86,15 +86,15 @@ export function AppHeader() {
                     {lessons.map(lesson => (
                       <button key={lesson.id} type="button" onClick={() => navigate(lessonPath(lesson))}>{lesson.question}</button>
                     ))}
-                    <Link to="/map">查看三课地图</Link>
+                    <Link to="/map">查看课程地图</Link>
                   </div>
                 )}
               </div>
             )}
           </div>
-          <Link className="text-action" to="/map" aria-label="三课地图">
+          <Link className="text-action" to="/map" aria-label="课程地图">
             <BookOpen aria-hidden="true" />
-            <span>三课地图</span>
+            <span>课程地图</span>
           </Link>
           <button className="icon-action" type="button" onClick={resetAll} title="清除全部进度">
             <Trash2 aria-hidden="true" />

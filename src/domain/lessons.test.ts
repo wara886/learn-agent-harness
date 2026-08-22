@@ -3,24 +3,29 @@ import { claims, claimsById, factBaseline, piFactBaseline, sourceUrl, upstreams 
 import { lessons } from './lessons.ts'
 
 describe('frozen lesson content', () => {
-  it('loads exactly three schema-validated lessons', () => {
-    expect(lessons).toHaveLength(3)
-    expect(new Set(lessons.map(lesson => lesson.slug)).size).toBe(3)
+  it('loads three DSH lessons and one Pi lesson', () => {
+    expect(lessons).toHaveLength(4)
+    expect(new Set(lessons.map(lesson => lesson.slug)).size).toBe(4)
+    expect(lessons.filter(lesson => lesson.track === 'dsh')).toHaveLength(3)
+    expect(lessons.filter(lesson => lesson.track === 'pi')).toHaveLength(1)
   })
 
-  it('uses only approved fixed-baseline claims', () => {
+  it('uses only approved claims from each lesson track', () => {
     expect(claims).toHaveLength(9)
     for (const lesson of lessons) {
       for (const claimId of lesson.claimIds) {
         const claim = claimsById.get(claimId)
         expect(claim?.reviewStatus).toBe('approved')
-        expect(claim?.upstream).toBe('dsh')
-        expect(claim?.baseline).toBe(factBaseline)
+        expect(claim?.upstream).toBe(lesson.track)
+        expect(claim?.baseline).toBe(upstreams[lesson.track].baseline)
       }
     }
+    expect(lessons.filter(lesson => lesson.track === 'dsh').every(lesson => (
+      lesson.claimIds.every(id => claimsById.get(id)?.baseline === factBaseline)
+    ))).toBe(true)
   })
 
-  it('pins the planned Pi lesson claims to their own upstream revision', () => {
+  it('pins current and planned Pi claims to their own upstream revision', () => {
     const piClaims = claims.filter(claim => claim.upstream === 'pi')
     expect(piClaims).toHaveLength(3)
     expect(piClaims.every(claim => claim.baseline === piFactBaseline)).toBe(true)

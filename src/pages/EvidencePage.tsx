@@ -9,7 +9,7 @@ export function EvidencePage() {
 
   return (
     <main className="evidence-page">
-      <Link className="back-link" to="/map"><ArrowLeft aria-hidden="true" />返回三课地图</Link>
+      <Link className="back-link" to="/map"><ArrowLeft aria-hidden="true" />返回课程地图</Link>
       <header className="page-intro">
         <div className="fact-status">固定提交 · 已审核</div>
         <h1>{claim.title}</h1>

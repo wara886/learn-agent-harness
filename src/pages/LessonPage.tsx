@@ -1,9 +1,9 @@
 import { ArrowLeft, ArrowRight, Check, ChevronDown, FlaskConical, Play, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useReducer, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { TracePanel } from '../components/TracePanel.tsx'
-import { claimsById, factBaseline } from '../domain/claims.ts'
-import { lessons, lessonsBySlug, lessonPath, type Lesson } from '../domain/lessons.ts'
+import { runnerStatusLabel, TracePanel } from '../components/TracePanel.tsx'
+import { claimsById, upstreams } from '../domain/claims.ts'
+import { lessonTracks, lessons, lessonsBySlug, lessonsByTrack, lessonPath, type Lesson } from '../domain/lessons.ts'
 import { useProgress } from '../domain/progress.tsx'
 import { restoreRunnerState, runnerReducer } from '../domain/runner.ts'
 
@@ -23,9 +23,14 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
   const saved = data.lessons[lesson.slug]
   const [state, dispatch] = useReducer(runnerReducer, restoreRunnerState(saved, lesson))
   const mainRef = useRef<HTMLElement>(null)
-  const lessonIndex = lessons.findIndex(candidate => candidate.id === lesson.id)
-  const previous = lessons[lessonIndex - 1]
-  const next = lessons[lessonIndex + 1]
+  const previousPhaseRef = useRef(state.phase)
+  const track = lessonTracks.find(candidate => candidate.id === lesson.track)!
+  const trackLessons = lessonsByTrack[lesson.track]
+  const lessonIndex = trackLessons.findIndex(candidate => candidate.id === lesson.id)
+  const previous = trackLessons[lessonIndex - 1]
+  const next = trackLessons[lessonIndex + 1]
+  const nextTrackLesson = lesson.track === 'dsh' ? lessonsByTrack.pi[0] : undefined
+  const sourceUpstream = upstreams[lesson.track]
   const continueLesson = home && data.lastLesson !== undefined && data.lastLesson !== lesson.slug
     ? lessonsBySlug.get(data.lastLesson)
     : undefined
@@ -46,6 +51,18 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
     return () => window.clearTimeout(timer)
   }, [state.phase])
 
+  useEffect(() => {
+    const previousPhase = previousPhaseRef.current
+    previousPhaseRef.current = state.phase
+    if (previousPhase !== 'running' || state.phase !== 'observed' || !window.matchMedia('(max-width: 560px)').matches) return
+    const heading = document.querySelector<HTMLElement>('#trace-heading')
+    heading?.focus({ preventScroll: true })
+    heading?.scrollIntoView({
+      block: 'start',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    })
+  }, [state.phase])
+
   const canRun = state.phase === 'predicted'
   const predictionHint = state.predictionId === undefined
     ? '选择后再运行；预测不会影响演示结果。'
@@ -53,14 +70,14 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       ? '已记录。现在运行，观察它是否符合你的判断。'
       : '已记录。不同判断也可以继续，结果会帮助你校正。'
 
-  const lessonLinks = useMemo(() => lessons.map((candidate, index) => {
+  const lessonLinks = useMemo(() => trackLessons.map((candidate, index) => {
     const value = data.lessons[candidate.slug]
     return {
       lesson: candidate,
       index,
       completed: typeof value === 'object' && value !== null && 'phase' in value && value.phase === 'completed',
     }
-  }), [data.lessons])
+  }), [data.lessons, trackLessons])
 
   function reset() {
     resetLesson(lesson.slug)
@@ -78,7 +95,24 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
         </div>
       )}
 
-      <nav className="lesson-switcher" aria-label="课程进度">
+      <nav className="track-switcher" aria-label="选择学习轨道">
+        {lessonTracks.map(item => {
+          const firstLesson = lessonsByTrack[item.id][0]!
+          return (
+            <Link
+              key={item.id}
+              to={lessonPath(firstLesson)}
+              aria-current={item.id === lesson.track ? 'page' : undefined}
+              className={item.id === lesson.track ? 'is-active' : ''}
+            >
+              <span>{item.shortLabel}</span>
+              <small>{lessonsByTrack[item.id].length} 课</small>
+            </Link>
+          )
+        })}
+      </nav>
+
+      <nav className={`lesson-switcher ${lessonLinks.length === 1 ? 'is-single' : ''}`} aria-label={`${track.shortLabel} 课程进度`}>
         {lessonLinks.map(item => (
           <Link
             key={item.lesson.id}
@@ -93,7 +127,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       </nav>
 
       <header className="task-intro">
-        <div className="lesson-sequence">第 {lessonIndex + 1} 课，共 {lessons.length} 课</div>
+        <div className="lesson-sequence">{track.shortLabel} 第 {lessonIndex + 1} 课，共 {trackLessons.length} 课</div>
         <h1>{lesson.title}</h1>
         <p className="lesson-question">{lesson.question}</p>
         <dl className="task-facts">
@@ -134,6 +168,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
             <Play aria-hidden="true" />
             {state.phase === 'running' ? '正在运行' : lesson.runLabel}
           </button>
+          <p className={`mobile-run-status phase-${state.phase}`} aria-live="polite">任务状态：{runnerStatusLabel(state)}</p>
 
           {(state.phase === 'observed' || state.phase === 'experimenting') && (
             <button
@@ -195,9 +230,9 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
           </div>
         </details>
         <details>
-          <summary><span>对照真实 DSH</span><ChevronDown aria-hidden="true" /></summary>
+          <summary><span>对照真实 {track.shortLabel}</span><ChevronDown aria-hidden="true" /></summary>
           <div className="depth-content evidence-list">
-            <p>适用于 DSH <code>{factBaseline.slice(0, 10)}</code>。产品事实与概念演示分开审核。</p>
+            <p>适用于 {sourceUpstream.label} <code>{sourceUpstream.baseline.slice(0, 10)}</code>。产品事实与概念演示分开审核。</p>
             {lesson.claimIds.map(claimId => {
               const claim = claimsById.get(claimId)
               if (claim === undefined) return null
@@ -209,7 +244,11 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
 
       <nav className="lesson-pagination" aria-label="前后课程">
         {previous ? <Link to={lessonPath(previous)}><ArrowLeft aria-hidden="true" /><span><small>上一课</small>{previous.navLabel}</span></Link> : <span />}
-        {next ? <Link to={lessonPath(next)}><span><small>下一课</small>{next.navLabel}</span><ArrowRight aria-hidden="true" /></Link> : <Link to="/map"><span><small>完成三课</small>查看任务地图</span><ArrowRight aria-hidden="true" /></Link>}
+        {next
+          ? <Link to={lessonPath(next)}><span><small>下一课</small>{next.navLabel}</span><ArrowRight aria-hidden="true" /></Link>
+          : nextTrackLesson
+            ? <Link to={lessonPath(nextTrackLesson)}><span><small>进入 Pi 对照</small>{nextTrackLesson.navLabel}</span><ArrowRight aria-hidden="true" /></Link>
+            : <Link to="/map"><span><small>查看全貌</small>返回课程地图</span><ArrowRight aria-hidden="true" /></Link>}
       </nav>
     </main>
   )

@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-React + TypeScript strict + Vite static SPA. M0 uses a framework-free clickable prototype; the React scaffold and public GitHub repository begin only after M0 passes.
+React + TypeScript strict + Vite static SPA deployed to GitHub Pages. Lessons run as deterministic local simulations without a backend or model API.
 
 ## Users
 
@@ -16,7 +16,7 @@ The primary user is an application developer who can read basic JavaScript, Type
 
 ## Product Purpose
 
-Learn Agent Harness starts from a visible Agent task, lets the learner predict and change one input, then names the mechanism behind the observed state change. The first beta proves this approach with three DeepSeek Harness lessons before adding the Pi comparison track.
+Learn Agent Harness starts from a visible Agent task, lets the learner predict and change one input, then names the mechanism behind the observed state change. The current beta proves this approach with three DeepSeek Harness lessons and the first Pi comparison lesson.
 
 ## Positioning
 
@@ -28,10 +28,10 @@ The first visit begins with a task to find a release port, not a course catalog.
 
 ## Capabilities and Constraints
 
-- M0 covers stack confirmation, the task-based interactive classroom direction, three frozen lesson outlines, six frozen claims, desktop and 390 px low-fidelity flows, and a five-person usability gate.
-- The three lessons cover a tool-call round trip, Session event projection, and reversible tool registration.
+- The current beta covers the task-based interactive classroom direction, three DSH lessons, one Pi comparison lesson, nine fixed-source claims, desktop and 390 px flows, and a five-person usability gate.
+- The DSH lessons cover a tool-call round trip, Session event projection, and reversible tool registration; the first Pi lesson covers its tool-result round trip.
 - Demonstrations do not call a model, require an API key, or represent a production DeepSeek Harness API.
-- M0 must pass before a public GitHub repository or React application scaffold is created.
+- The current beta remains unvalidated until five target learners complete the recorded M4 gate.
 - DeepSeek Harness product fixes, real model execution, authentication, analytics infrastructure, and the full curriculum are out of scope.
 
 ## Brand Commitments
@@ -47,7 +47,7 @@ The confirmed direction is “任务式互动课堂”: light neutral surfaces, 
 - Pi Agent Harness fact baseline: `earendil-works/pi@c49906ec77788625aacbdc53ebca6fbe65bd20f5`.
 - Upstream drift review: `research/upstream-baseline-audit-2026-08-22.md`.
 - Reference course baseline: `onychen/learn-dsh@249f4a0e9622917c8d315c672c87b96401a0c7d4`.
-- No testimonials, adoption metrics, or validated usability results exist before the M0 sessions.
+- No testimonials, adoption metrics, or validated usability results exist before the M4 sessions.
 
 ## Product Principles
 

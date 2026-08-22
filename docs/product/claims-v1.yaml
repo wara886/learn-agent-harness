@@ -10,6 +10,7 @@ upstreams:
     baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
 reviewRecords:
   - docs/product/M0-CONTENT-REVIEW.md
+  - docs/product/PI-LESSON-REVIEW.md
   - research/upstream-baseline-audit-2026-08-22.md
 claims:
   - id: dsh-agent-loop-tool-round-trip
@@ -147,7 +148,8 @@ claims:
         symbol: executeToolCalls
     caveat: >-
       顺序与并行模式、拦截 hook、终止提示、steering 和 follow-up 都会改变具体轮次路径。
-    usedBy: []
+    usedBy:
+      - lesson-pi-01-tool-result-round-trip
     reviewStatus: approved
 
   - id: pi-agent-message-conversion

@@ -2,7 +2,7 @@ import { Check, Circle, LoaderCircle } from 'lucide-react'
 import type { Lesson } from '../domain/lessons.ts'
 import { visibleStepCount, type RunnerState } from '../domain/runner.ts'
 
-function statusLabel(state: RunnerState): string {
+export function runnerStatusLabel(state: RunnerState): string {
   switch (state.phase) {
     case 'unstarted': return '未开始'
     case 'predicted': return '等待运行'
@@ -25,10 +25,10 @@ export function TracePanel({ lesson, state }: { lesson: Lesson; state: RunnerSta
     <section className="trace-panel" aria-labelledby="trace-heading">
       <div className="panel-heading">
         <div>
-          <h2 id="trace-heading">任务过程</h2>
+          <h2 id="trace-heading" tabIndex={-1}>任务过程</h2>
           <p>每次只观察一个变化</p>
         </div>
-        <span className={`phase-badge phase-${state.phase}`} aria-live="polite">{statusLabel(state)}</span>
+        <span className={`phase-badge phase-${state.phase}`} aria-live="polite">{runnerStatusLabel(state)}</span>
       </div>
       <ol className="trace-list">
         {trace.map((item, index) => {

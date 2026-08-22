@@ -1,7 +1,7 @@
 # 三课内容生产与审核记录
 
 > 内容版本：`three-slice-v1`
-> 事实基线：`deepseek-harness@47f943859bef60e4160492346772ded9b24f765a`
+> 事实基线：`deepseek-harness@b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`
 > 执行规则：一课作者 -> 事实审核 -> 体验审核 -> 一次定点修订
 
 ## 第 01 课：先查再答

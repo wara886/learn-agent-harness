@@ -1,15 +1,23 @@
-schemaVersion: 1
-registry: learn-deepseek-harness-three-slice-claims-v1
-repository: deepseek-harness
-baseline: 47f943859bef60e4160492346772ded9b24f765a
-frozenAt: 2026-08-15
-reviewRecord: docs/product/M0-CONTENT-REVIEW.md
+schemaVersion: 2
+registry: learn-agent-harness-upstream-claims-v2
+updatedAt: 2026-08-22
+upstreams:
+  dsh:
+    repository: deepseek-ai/deepseek-harness
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
+  pi:
+    repository: earendil-works/pi
+    baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
+reviewRecords:
+  - docs/product/M0-CONTENT-REVIEW.md
+  - research/upstream-baseline-audit-2026-08-22.md
 claims:
   - id: dsh-agent-loop-tool-round-trip
+    upstream: dsh
     statement: >-
       ReactLoopAgent 在一个完整 assistant message 中发现 tool-call 内容后，会执行这些调用并把 tool/call 与 tool/result 追加到 Session；未被结论型工具结束的结果会进入后续模型请求，assistant message 没有 tool-call 时该步以 completed 结束。
     classification: product-fact
-    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
     evidence:
       - path: packages/core/agent-loop/src/agent.ts
         symbol: ReactLoopAgent.step
@@ -26,10 +34,11 @@ claims:
     reviewStatus: approved
 
   - id: dsh-tools-execute-waterfall
+    upstream: dsh
     statement: >-
       tools/execute 是 waterfall 事件；ToolRuntime 在分派单个已接受的工具执行时通过 ctx.waterfall 调用监听器，并以工具 body 作为末端 next。
     classification: product-fact
-    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
     evidence:
       - path: packages/core/tools/src/index.ts
         symbol: "Events['tools/execute']"
@@ -42,10 +51,11 @@ claims:
     reviewStatus: approved
 
   - id: dsh-session-append-only-source
+    upstream: dsh
     statement: >-
       SessionEventMap 定义的 Session 事件日志是追加式、可持久化的交互事实来源；Session.deriveMessages 不是直接返回全部事件，而是沿当前有序 surface 调用 deriveEventMessage 得到模型消息。
     classification: product-fact
-    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
     evidence:
       - path: packages/core/session/src/types.ts
         symbol: SessionEventMap
@@ -62,10 +72,11 @@ claims:
     reviewStatus: approved
 
   - id: dsh-session-surface-projection
+    upstream: dsh
     statement: >-
       固定提交中只有 user/message、assistant/message 和 tool/result 属于 SurfaceEventType；deriveEventMessage 对其他事件返回 null，因此 turn/step 边界、assistant/chunk、todo/write 与 request/header 等 log-only 记录不会各自生成模型消息。
     classification: product-fact
-    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
     evidence:
       - path: packages/core/session/src/types.ts
         symbol: SurfaceEventType
@@ -82,10 +93,11 @@ claims:
     reviewStatus: approved
 
   - id: dsh-tools-registration-visible
+    upstream: dsh
     statement: >-
       ToolRuntime.register 把通过校验的工具定义加入当前注册层；ToolRuntime.schemas 从当前可见工具生成模型侧 schema，system-prompt assembly 会收到已注册工具的 schema。
     classification: product-fact
-    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
     evidence:
       - path: packages/core/tools/src/index.ts
         symbol: ToolRuntime.register
@@ -100,10 +112,11 @@ claims:
     reviewStatus: approved
 
   - id: dsh-tools-registration-disposer
+    upstream: dsh
     statement: >-
       ToolRuntime.register 通过 ScopedLayers.effect 建立注册并返回 ctx.effect 的 exact disposer；调用该 disposer 会撤销工具注册，拥有该注册的插件 fiber 释放时也会移除工具。
     classification: product-fact
-    baseline: 47f943859bef60e4160492346772ded9b24f765a
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
     evidence:
       - path: packages/core/tools/src/index.ts
         symbol: ToolRuntime.register
@@ -119,4 +132,52 @@ claims:
       disposer 只撤销它拥有的那次注册；真实 teardown 还受 Cordis effect 的 LIFO 次序、scope 生命周期和异步 fiber quiescence 影响。课程中的同步开关不复现这些时序细节。
     usedBy:
       - lesson-03-register-and-remove-tool
+    reviewStatus: approved
+
+  - id: pi-agent-loop-tool-round-trip
+    upstream: pi
+    statement: >-
+      Pi agent loop 从 assistant message 收集 toolCall，按配置顺序或并行执行，并把 ToolResultMessage 加入上下文；只要仍有工具调用或排队消息，循环就继续。
+    classification: product-fact
+    baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
+    evidence:
+      - path: packages/agent/src/agent-loop.ts
+        symbol: runLoop
+      - path: packages/agent/src/agent-loop.ts
+        symbol: executeToolCalls
+    caveat: >-
+      顺序与并行模式、拦截 hook、终止提示、steering 和 follow-up 都会改变具体轮次路径。
+    usedBy: []
+    reviewStatus: approved
+
+  - id: pi-agent-message-conversion
+    upstream: pi
+    statement: >-
+      Pi 的 agent loop 保持 AgentMessage 上下文，只在每次模型调用前先运行可选 transformContext，再通过 convertToLlm 转成 Provider 可接受的 Message。
+    classification: product-fact
+    baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
+    evidence:
+      - path: packages/agent/src/types.ts
+        symbol: AgentLoopConfig.convertToLlm
+      - path: packages/agent/src/agent-loop.ts
+        symbol: streamAssistantResponse
+    caveat: >-
+      应用自定义消息必须自行转换或过滤；转换函数失败会中断低层循环，不能把 UI-only 消息直接发送给 Provider。
+    usedBy: []
+    reviewStatus: approved
+
+  - id: pi-extension-tool-registration
+    upstream: pi
+    statement: >-
+      ExtensionAPI.registerTool 把定义写入当前 extension 的工具表并刷新 Session 工具注册表；reload 会使旧 runner 失效、重新加载资源并重建运行时工具表。
+    classification: product-fact
+    baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
+    evidence:
+      - path: packages/coding-agent/src/core/extensions/loader.ts
+        symbol: createExtensionAPI.registerTool
+      - path: packages/coding-agent/src/core/agent-session.ts
+        symbol: AgentSession._refreshToolRegistry/reload
+    caveat: >-
+      Pi 的 registerTool 返回 void，不是 DSH 风格的 exact disposer；撤下扩展工具依赖资源配置变化后 reload，而不是调用注册返回的清理函数。
+    usedBy: []
     reviewStatus: approved

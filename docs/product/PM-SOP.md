@@ -1,4 +1,4 @@
-# Learn DeepSeek Harness 产品定义与交付 SOP
+# Learn Agent Harness 产品定义与交付 SOP
 
 > 状态：需求候选稿，未冻结
 > 范围：从 0 到 1 的学习产品定义、课程生产和交付流程
@@ -7,7 +7,7 @@
 
 ## 1. 产品结论
 
-Learn DeepSeek Harness 应该先让学习者看到一个 Agent 如何完成具体任务，再帮助他解释刚才发生了什么，最后才展开 Cordis、事件模式、包结构和真实源码。
+Learn Agent Harness 应该先让学习者看到一个 Agent 如何完成具体任务，再帮助他解释刚才发生了什么，最后才展开 Pi、Cordis、事件模式、包结构和真实源码。
 
 产品的第一承诺不是“讲完 DSH 的全部架构”，而是：
 

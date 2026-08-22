@@ -1,6 +1,6 @@
-# Learn DeepSeek Harness
+# Learn Agent Harness
 
-从一次看得见的 Agent 任务出发，先获得直觉，再逐层理解 DeepSeek Harness 如何调用工具、记录过程和扩展能力。
+从一次看得见的 Agent 任务出发，先获得直觉，再逐层理解 Pi 与 DeepSeek Harness 如何调用工具、记录过程和扩展能力。
 
 首个纵向切片只包含三课：工具结果如何改变回答、Session 记录如何投影成模型消息、工具能力如何注册并撤销。演示全部在浏览器本地确定性运行，不调用模型、不需要 API key，也不产生 API 费用。
 
@@ -24,11 +24,11 @@ Node.js 22+ 与 pnpm 11.19.0。
 - 固定提交的 claim 证据页与教学简化说明。
 - `390 x 844`、`768 x 1024`、`1440 x 900` 响应式路径。
 
-当前是等待 M4 独立用户测试的可用原型；GitHub Pages 尚未启用。
+当前是等待 M4 独立用户测试的公开 beta；自动化工程验证与 Safari/VoiceOver 检查已经完成，真人可用性结果仍待收集。
 
 ## 事实基线
 
-课程中的 DeepSeek Harness 产品事实固定到 `47f943859bef60e4160492346772ded9b24f765a`。教学状态机是概念演示，不是 DeepSeek Harness API，也不保证真实模型采取相同决策。
+当前三课中的 DeepSeek Harness 产品事实固定到 `b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`。下一阶段 Pi 对照课的事实基线固定到 `earendil-works/pi@c49906ec77788625aacbdc53ebca6fbe65bd20f5`。教学状态机是概念演示，不是两个上游项目的 API，也不保证真实模型采取相同决策。
 
 ## 独立性
 

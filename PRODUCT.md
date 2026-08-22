@@ -12,15 +12,15 @@ React + TypeScript strict + Vite static SPA. M0 uses a framework-free clickable 
 
 ## Users
 
-The primary user is an application developer who can read basic JavaScript, TypeScript, or Python and has used a chat or coding Agent, but has not maintained an Agent runtime. They want to decide whether DeepSeek Harness fits a project, connect visible Agent behavior to real mechanisms, and find the right extension point before changing the monorepo.
+The primary user is an application developer who can read basic JavaScript, TypeScript, or Python and has used a chat or coding Agent, but has not maintained an Agent runtime. They want to compare Pi and DeepSeek Harness, connect visible Agent behavior to real mechanisms, and find the right extension point before changing either codebase.
 
 ## Product Purpose
 
-Learn DeepSeek Harness starts from a visible Agent task, lets the learner predict and change one input, then names the mechanism behind the observed state change. The first release proves this approach with three lessons before expanding the curriculum.
+Learn Agent Harness starts from a visible Agent task, lets the learner predict and change one input, then names the mechanism behind the observed state change. The first beta proves this approach with three DeepSeek Harness lessons before adding the Pi comparison track.
 
 ## Positioning
 
-The learning path is organized by executable user tasks rather than package directories or an architecture-first syllabus. Every DeepSeek Harness product fact is tied to a fixed source commit, while deterministic teaching demonstrations are labeled separately from runtime behavior.
+The learning path is organized by executable user tasks rather than package directories or an architecture-first syllabus. Every Pi and DeepSeek Harness product fact is tied to a fixed source commit, while deterministic teaching demonstrations are labeled separately from runtime behavior.
 
 ## Operating Context
 
@@ -43,7 +43,9 @@ The confirmed direction is “任务式互动课堂”: light neutral surfaces, 
 - Product requirements and milestone gates: `docs/product/REQUIREMENTS.md`.
 - Three-lesson content outline: `docs/product/OUTLINE-v1.md`.
 - Fixed-source claim registry: `docs/product/claims-v1.yaml`.
-- DeepSeek Harness fact baseline: `deepseek-harness@47f943859bef60e4160492346772ded9b24f765a`.
+- DeepSeek Harness fact baseline: `deepseek-harness@b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`.
+- Pi Agent Harness fact baseline: `earendil-works/pi@c49906ec77788625aacbdc53ebca6fbe65bd20f5`.
+- Upstream drift review: `research/upstream-baseline-audit-2026-08-22.md`.
 - Reference course baseline: `onychen/learn-dsh@249f4a0e9622917c8d315c672c87b96401a0c7d4`.
 - No testimonials, adoption metrics, or validated usability results exist before the M0 sessions.
 

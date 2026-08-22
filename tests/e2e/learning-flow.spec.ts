@@ -50,6 +50,42 @@ test('keeps the first task and action visible at 390px', async ({ page }) => {
   expect(bodyWidth).toBe(390)
 })
 
+test('keeps every release viewport free of page overflow', async ({ page }) => {
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.reload()
+    await expect(page.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeVisible()
+    const dimensions = await page.locator('body').evaluate(element => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    }))
+    expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+  }
+})
+
+test('remains usable at a 200 percent equivalent CSS viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 720, height: 450 })
+  await expect(page.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeVisible()
+  await page.getByRole('button', { name: '先读取工作区' }).click()
+  await expect(page.getByRole('button', { name: '启动任务' })).toBeEnabled()
+  const dimensions = await page.locator('body').evaluate(element => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }))
+  expect(dimensions.scrollWidth).toBe(dimensions.clientWidth)
+})
+
+test('preserves the complete learning result with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.getByRole('button', { name: '先读取工作区' }).click()
+  await page.getByRole('button', { name: '启动任务' }).click()
+  await expect(page.getByText('发布端口是 4173，依据为 config.env；任务已停止。')).toBeVisible()
+})
+
 test('supports the keyboard path without serious accessibility violations', async ({ page }) => {
   await page.getByRole('button', { name: '先读取工作区' }).focus()
   await page.keyboard.press('Space')

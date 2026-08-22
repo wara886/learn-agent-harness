@@ -1,4 +1,4 @@
-# Learn DeepSeek Harness 产品简报
+# Learn Agent Harness 产品简报
 
 > 状态：需求候选稿，未冻结。**一句话产品：** 从一次看得见的 Agent 任务出发，先获得直觉，再逐层看懂 DeepSeek Harness 如何调用工具、记录过程和扩展能力。
 

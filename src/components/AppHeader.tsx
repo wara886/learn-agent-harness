@@ -42,7 +42,7 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <div className="header-inner">
-        <Link className="brand" to="/" aria-label="看懂 DSH 首页">看懂 DSH</Link>
+        <Link className="brand" to="/" aria-label="Learn Agent Harness 首页">看懂 Agent</Link>
         <div className="course-progress" aria-label={`已完成 ${completed} 课，共 3 课`}>
           <span>{completed}/3</span>
           <span className="progress-track" aria-hidden="true">

@@ -1,6 +1,6 @@
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { Link, Navigate, useParams } from 'react-router-dom'
-import { claimsById, sourceUrl } from '../domain/claims.ts'
+import { claimsById, sourceUrl, upstreams } from '../domain/claims.ts'
 
 export function EvidencePage() {
   const { claimId } = useParams()
@@ -20,7 +20,7 @@ export function EvidencePage() {
         <ul>
           {claim.paths.map(item => (
             <li key={`${item.path}:${item.symbol}`}>
-              <a href={sourceUrl(item.path)} target="_blank" rel="noreferrer">
+              <a href={sourceUrl(claim, item.path)} target="_blank" rel="noreferrer">
                 <code>{item.path}</code>
                 <span>{item.symbol}</span>
                 <ExternalLink aria-hidden="true" />
@@ -33,7 +33,7 @@ export function EvidencePage() {
         <h2>适用限定</h2>
         <p>{claim.caveat}</p>
       </section>
-      <p className="baseline-line">适用于 DeepSeek Harness <code>{claim.baseline}</code></p>
+      <p className="baseline-line">适用于 {upstreams[claim.upstream].label} <code>{claim.baseline}</code></p>
     </main>
   )
 }

@@ -1,5 +1,5 @@
 {
-  "name": "learn-deepseek-harness",
+  "name": "learn-agent-harness",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -26,6 +26,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.62.1",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.2",

@@ -1,9 +1,9 @@
-# Learn DeepSeek Harness 纵向切片需求
+# Learn Agent Harness 纵向切片需求
 
 > 状态：M0 已确认，2026-08-15 进入三课纵向切片开发
 > 产品范围：独立的 learner-first 学习体验，不是 DSH 产品补丁，也不是营销 landing page
 > 参考基线：`onychen/learn-dsh@249f4a0e9622917c8d315c672c87b96401a0c7d4`
-> 事实基线：`deepseek-harness@47f943859bef60e4160492346772ded9b24f765a`
+> 事实基线：`deepseek-harness@b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`
 > 证据：`PM-SOP.md`、`research/reference-content-audit.md`、`research/session-ux-bug-audit.md`、`research/open-source-ux-landscape.md`
 
 ## 1. 决策结论
@@ -113,7 +113,7 @@
 - 每个演示显示“概念演示”标识，并列出会改变真实行为理解的省略项。
 - 每项 DSH 产品事实有唯一 `claimId`、固定提交、仓库、路径、符号或测试、事实分类和审核状态。
 - 对事件模式、联合类型、角色名称和源码路径建立自动检查；不能自动证明的语义必须有人工审核记录。
-- 页面显示“适用于 DSH `47f943859b`”，源码链接使用固定提交 URL，不链接会漂移的默认分支。
+- 页面显示“适用于 DSH `b150a551b8`”，源码链接使用固定提交 URL，不链接会漂移的默认分支。
 - 参考课程是待审计输入，不是事实来源。
 
 参考审计确认的七项错误不得回归：`tools/execute` 是 waterfall；追加写作 `surfaceOp: 'append'`；replace 引用全部被遮蔽节点；Prompt 文本和工具 schema 分离；角色名为 Service Definition / Service Provider / Consumer；`skills/change` 只陈述已验证的发射行为；课程数量与标题一致。
@@ -239,7 +239,7 @@
 1. **技术栈：** 推荐 React + TypeScript + Vite 的静态 SPA；理由和替代方案见 `IMPLEMENTATION-PLAN.md`。用户确认前不创建 scaffold。
 2. **视觉方向：** 需求只冻结 learner-first 层级、正文优先和状态透明；具体配色、字体与视觉世界需在实施前以一个方向稿确认。
 
-名称与域名不阻塞原型：仓库暂用 `learn-deepseek-harness`，公开名称可在首次部署前调整。具体参与者姓名不阻塞需求文档审核，但完成招募、无应用代码的 M0 原型测试和测试记录是进入 M1 开发的硬门；M4 还要用真实构建完成另一轮至少 5 人发布验证。任一轮未达标都不得扩写完整课程。
+公开名称与仓库在首次部署前统一为 `learn-agent-harness`，以容纳 DSH 入门与 Pi 对照两条路径。具体参与者姓名不阻塞需求文档审核，但完成招募、无应用代码的 M0 原型测试和测试记录是进入 M1 开发的硬门；M4 还要用真实构建完成另一轮至少 5 人发布验证。任一轮未达标都不得扩写完整课程。
 
 ## 10. 冻结条件
 

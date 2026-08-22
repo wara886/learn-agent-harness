@@ -1,4 +1,4 @@
-# Learn DeepSeek Harness 三课纵向切片实施计划
+# Learn Agent Harness 三课纵向切片实施计划
 
 > 状态：M0 已确认，M1-M3 实施中
 > 前置需求：`docs/product/REQUIREMENTS.md`
@@ -365,7 +365,7 @@ GIF provenance 明确写：确定性本地概念演示、没有真实模型调�
 ### M1 基础与第一屏
 
 **入口：** M0 通过。
-**动作：** 在用户 GitHub 立即创建 public `learn-deepseek-harness` 仓库，推送已确认产品文档和最小 scaffold，设置 main 保护；在工作分支实现设计 tokens、语义 app shell、路由、内容 schema、进度 adapter 和第 01 课初始工作区。
+**动作：** 在用户 GitHub 创建 public 学习仓库，推送已确认产品文档和最小 scaffold，设置 main 保护；在首次部署前将仓库定名为 `learn-agent-harness`，在工作分支实现设计 tokens、语义 app shell、路由、内容 schema、进度 adapter 和第 01 课初始工作区。
 **退出：** 两个目标视口第一屏可操作；schema、typecheck、lint、a11y smoke 通过；首屏无目录前置。
 **回退：** 删除未采用 scaffold commit，保留产品文档；不兼容技术决策用独立 commit 撤回。
 
@@ -399,7 +399,7 @@ GIF provenance 明确写：确定性本地概念演示、没有真实模型调�
 
 ## 12. GitHub、部署和许可证策略
 
-- 推荐仓库：`wara886/learn-deepseek-harness`，public；默认分支 `main`，工作分支使用 `codex/` 前缀。
+- 公开仓库：`wara886/learn-agent-harness`，public；默认分支 `main`，工作分支使用 `codex/` 前缀。
 - M0 通过后立即创建远端仓库；首个推送包含已确认的产品文档和最小 scaffold，实现继续按 M1-M5 形成可审查提交。Pages 只在 M5 启用。
 - GitHub Actions 分开 `quality` 与 `deploy`；deploy 只在 main 的 quality 全部通过后上传 `dist/` Pages artifact。
 - Actions 固定到审计过的 commit SHA；Node/pnpm 版本固定；禁止把 sibling 本地 DSH 路径写进构建产物。

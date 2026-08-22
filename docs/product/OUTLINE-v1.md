@@ -1,7 +1,7 @@
-# Learn DeepSeek Harness 三课大纲 v1
+# Learn Agent Harness：DSH 三课大纲 v1
 
 > 状态：M0 冻结稿，不含课程正文或应用实现。冻结日期：2026-08-15。
-> 事实基线：`deepseek-harness@47f943859bef60e4160492346772ded9b24f765a`。
+> 事实基线：`deepseek-harness@b150a551b8d465e31e418e1b2eaf5e79bbb7d28e`。
 > 事实注册表：[`claims-v1.yaml`](./claims-v1.yaml)。6 条 claim 已按固定提交核验并冻结；审核记录见 [`M0-CONTENT-REVIEW.md`](./M0-CONTENT-REVIEW.md)。
 
 ## 冻结规则

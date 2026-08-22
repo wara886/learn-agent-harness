@@ -2,7 +2,7 @@
 
 > 更新日期：2026-08-22
 > 分支：`codex/three-lesson-slice`
-> 当前阶段：M1-M3 与 M4 工程验证已完成，M4 真人测试待完成，公开 beta 发布进行中
+> 当前阶段：M1-M3、M4 工程验证与公开 beta 发布已完成，M4 真人测试待完成
 
 ## 已交付
 
@@ -30,11 +30,12 @@
 - PR #1 的 GitHub Actions `check` 已通过；真实 production build GIF 已嵌入 PR。
 - `main` 要求 PR、最新 `check`、线性历史和会话解决，并禁止强推与删除。
 - DSH 基线已更新为 `b150a551b8`，Pi 基线固定为 `c49906ec77`；双上游审计记录位于 `research/upstream-baseline-audit-2026-08-22.md`。
+- GitHub Actions run `32576245531` 的 `check` 与 `deploy` 均成功；Pages 地址为 `https://wara886.github.io/learn-agent-harness/`。
+- 公网站点已通过首页冷启动、任务运行、刷新恢复、问题语言搜索跳转和固定源码外链检查。
 
 ## 尚未完成
 
 - M4 独立于 M0 的 5 人 production build 测试。
 - M4 通过所需的 5 人 production build 测试与观察记录。
-- GitHub Pages 生产 URL 冷启动验证。
 
 真人 M4 完成前只称为“公开 beta”，不称为已验证产品或正式发布版本。

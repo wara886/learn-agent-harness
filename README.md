@@ -4,6 +4,8 @@
 
 首个纵向切片只包含三课：工具结果如何改变回答、Session 记录如何投影成模型消息、工具能力如何注册并撤销。演示全部在浏览器本地确定性运行，不调用模型、不需要 API key，也不产生 API 费用。
 
+在线体验：[https://wara886.github.io/learn-agent-harness/](https://wara886.github.io/learn-agent-harness/)
+
 ![桌面端任务式互动课堂](artifacts/screenshots/desktop-1440x900.png)
 
 ## 开发
@@ -24,7 +26,7 @@ Node.js 22+ 与 pnpm 11.19.0。
 - 固定提交的 claim 证据页与教学简化说明。
 - `390 x 844`、`768 x 1024`、`1440 x 900` 响应式路径。
 
-当前是等待 M4 独立用户测试的公开 beta；自动化工程验证与 Safari/VoiceOver 检查已经完成，真人可用性结果仍待收集。
+当前是等待 M4 独立用户测试的公开 beta；自动化工程验证、Safari/VoiceOver 检查、GitHub Pages 部署与公网冷启动检查已经完成，真人可用性结果仍待收集。
 
 ## 事实基线
 

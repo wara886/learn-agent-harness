@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from './App.tsx'
@@ -19,17 +19,31 @@ describe('task-first application', () => {
 
   it('finds a lesson from a problem-language query', () => {
     renderApp()
-    const search = screen.getByRole('combobox', { name: '按问题搜索课程' })
+    const search = screen.getByRole('searchbox', { name: '按问题搜索课程' })
     fireEvent.focus(search)
     fireEvent.change(search, { target: { value: '事件怎么变成消息' } })
-    expect(screen.getByRole('button', { name: /聊天界面中的消息从哪里来/ })).toBeVisible()
+    expect(within(screen.getByRole('navigation', { name: '搜索结果' })).getByRole('link', { name: /聊天界面中的消息从哪里来/ })).toBeVisible()
   })
 
   it('opens the Pi tool-result lesson as a separate track', () => {
     renderApp('/learn/pi-tool-result-round-trip')
     expect(screen.getByRole('heading', { name: '让 Pi 读出项目名称，再回答' })).toBeVisible()
-    expect(screen.getByRole('navigation', { name: '选择学习轨道' })).toHaveTextContent('Pi1 课')
+    expect(screen.getByRole('navigation', { name: '课程目录' })).toHaveTextContent('Pi Agent Harness1 课')
+    expect(screen.getByRole('navigation', { name: '当前位置' })).toHaveTextContent('学习路径Pi Agent Harness结果回到下一轮')
     expect(screen.getByRole('button', { name: '运行 Pi 工具闭环' })).toBeDisabled()
+  })
+
+  it('shows every track and lesson in one course directory', () => {
+    renderApp()
+    const directory = screen.getByRole('navigation', { name: '课程目录' })
+    expect(directory).toHaveTextContent('DeepSeek Harness3 课')
+    expect(directory).toHaveTextContent('Pi Agent Harness1 课')
+    expect(directory.getElementsByTagName('a')).toHaveLength(4)
+  })
+
+  it('redirects an unknown lesson instead of showing mismatched content', () => {
+    renderApp('/learn/not-a-real-lesson')
+    expect(screen.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeVisible()
   })
 
   it('migrates completed progress from the former DSH storage key', () => {

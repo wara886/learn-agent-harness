@@ -9,6 +9,7 @@ export function App() {
   return (
     <ProgressProvider>
       <div className="app-shell">
+        <a className="skip-link" href="#main-content">跳到课程内容</a>
         <AppHeader />
         <Routes>
           <Route path="/" element={<LessonPage home />} />

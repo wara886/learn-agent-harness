@@ -1,15 +1,20 @@
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { claimsById, sourceUrl, upstreams } from '../domain/claims.ts'
 
 export function EvidencePage() {
   const { claimId } = useParams()
+  const location = useLocation()
+  const sourceLesson = location.state as { from: string; label: string } | null
   const claim = claimsById.get(claimId ?? '')
   if (claim === undefined) return <Navigate to="/map" replace />
 
   return (
-    <main className="evidence-page">
-      <Link className="back-link" to="/map"><ArrowLeft aria-hidden="true" />返回课程地图</Link>
+    <main className="evidence-page" id="main-content">
+      <Link className="back-link" to={sourceLesson?.from ?? '/map'}>
+        <ArrowLeft aria-hidden="true" />
+        {sourceLesson === null ? '返回学习路径' : `返回“${sourceLesson.label}”`}
+      </Link>
       <header className="page-intro">
         <div className="fact-status">固定提交 · 已审核</div>
         <h1>{claim.title}</h1>

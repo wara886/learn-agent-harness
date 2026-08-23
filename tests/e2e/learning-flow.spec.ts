@@ -16,9 +16,9 @@ test('completes the first lesson and persists progress', async ({ page }) => {
   await expect(page.getByText('无法从现有结果确认发布端口；任务已停止。')).toBeVisible()
   await page.getByRole('button', { name: '说明缺少依据并停止' }).click()
   await expect(page.getByText(/你抓住了因果链/)).toBeVisible()
-  await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 6 课')).toBeVisible()
   await page.reload()
-  await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 6 课')).toBeVisible()
 })
 
 test('searches in problem language and runs the projection experiment', async ({ page }) => {
@@ -64,14 +64,36 @@ test('switches to Pi and completes the tool-result round trip', async ({ page })
   await expect(page.getByText('确定性演示改为回答 sandbox-demo，随后循环停止。')).toBeVisible()
   await page.getByRole('button', { name: '返回当前上下文并停止' }).click()
   await expect(page.getByText('没有工具调用或排队消息时，这次低层循环已经完成。')).toBeVisible()
-  await expect(page.getByLabel('已完成 1 课，共 4 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 6 课')).toBeVisible()
+})
+
+test('keeps an application-only Pi message out of the provider request', async ({ page }) => {
+  await page.goto('/#/learn/pi-agent-message-conversion')
+  await page.getByRole('button', { name: '按规则转换或过滤' }).click()
+  await page.getByRole('button', { name: '生成 Provider 消息' }).click()
+  await expect(page.getByText('模型请求包含用户问题，不包含界面状态提示。', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '把 status 改为可转换说明' }).click()
+  await expect(page.getByText('模型请求现在同时包含用户问题和补充说明。', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '增加转换或过滤规则' }).click()
+  await expect(page.getByText('对。Agent 可以保存应用消息，但进入 Provider 前必须得到明确转换结果。', { exact: true })).toBeVisible()
+})
+
+test('reloads a Pi session after removing an Extension tool', async ({ page }) => {
+  await page.goto('/#/learn/pi-extension-tool-registration')
+  await page.getByRole('button', { name: '写入 Extension 工具表' }).click()
+  await page.getByRole('button', { name: '加载统计工具 Extension' }).click()
+  await expect(page.getByText('当前 Session 可以选择并执行 count_text。', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '移除 Extension 并 reload' }).click()
+  await expect(page.getByText('重建后的 Session 工具表中没有 count_text。', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '不可以，应修改资源后 reload' }).click()
+  await expect(page.getByText('对。Pi registerTool 返回 void；这条路径通过资源变化和 reload 重建工具表。', { exact: true })).toBeVisible()
 })
 
 test('shows the complete course directory and current location on desktop', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   const directory = page.getByRole('navigation', { name: '课程目录' })
   await expect(directory).toBeVisible()
-  await expect(directory.getByRole('link')).toHaveCount(4)
+  await expect(directory.getByRole('link')).toHaveCount(6)
   await expect(directory.getByRole('link', { name: /先查再答/ })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('navigation', { name: '当前位置' })).toContainText('DeepSeek Harness')
 })
@@ -89,7 +111,13 @@ test('keeps the first task and action visible at 390px', async ({ page }) => {
 })
 
 test('keeps every release viewport free of page overflow', async ({ page }) => {
-  const routes = ['/#/', '/#/learn/pi-tool-result-round-trip', '/#/map']
+  const routes = [
+    '/#/',
+    '/#/learn/pi-tool-result-round-trip',
+    '/#/learn/pi-agent-message-conversion',
+    '/#/learn/pi-extension-tool-registration',
+    '/#/map',
+  ]
   for (const viewport of [
     { width: 390, height: 844 },
     { width: 768, height: 1024 },

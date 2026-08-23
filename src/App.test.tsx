@@ -28,7 +28,7 @@ describe('task-first application', () => {
   it('opens the Pi tool-result lesson as a separate track', () => {
     renderApp('/learn/pi-tool-result-round-trip')
     expect(screen.getByRole('heading', { name: '让 Pi 读出项目名称，再回答' })).toBeVisible()
-    expect(screen.getByRole('navigation', { name: '课程目录' })).toHaveTextContent('Pi Agent Harness1 课')
+    expect(screen.getByRole('navigation', { name: '课程目录' })).toHaveTextContent('Pi Agent Harness3 课')
     expect(screen.getByRole('navigation', { name: '当前位置' })).toHaveTextContent('学习路径Pi Agent Harness结果回到下一轮')
     expect(screen.getByRole('button', { name: '运行 Pi 工具闭环' })).toBeDisabled()
   })
@@ -37,8 +37,8 @@ describe('task-first application', () => {
     renderApp()
     const directory = screen.getByRole('navigation', { name: '课程目录' })
     expect(directory).toHaveTextContent('DeepSeek Harness3 课')
-    expect(directory).toHaveTextContent('Pi Agent Harness1 课')
-    expect(directory.getElementsByTagName('a')).toHaveLength(4)
+    expect(directory).toHaveTextContent('Pi Agent Harness3 课')
+    expect(directory.getElementsByTagName('a')).toHaveLength(6)
   })
 
   it('redirects an unknown lesson instead of showing mismatched content', () => {
@@ -60,7 +60,7 @@ describe('task-first application', () => {
       },
     }))
     renderApp()
-    expect(screen.getByLabelText('已完成 1 课，共 4 课')).toBeVisible()
+    expect(screen.getByLabelText('已完成 1 课，共 6 课')).toBeVisible()
     expect(window.localStorage.getItem('learn-dsh-progress-v1')).toBeNull()
   })
 })

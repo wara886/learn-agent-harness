@@ -288,6 +288,123 @@ const lessonInput: Lesson[] = [
     searchTerms: ['Pi 怎么执行工具', '工具结果放在哪里', '为什么还要下一轮', 'tool result message', 'pi agent loop'],
     claimIds: ['pi-agent-loop-tool-round-trip'],
   },
+  {
+    id: 'lesson-pi-02-agent-message-conversion',
+    track: 'pi',
+    slug: 'pi-agent-message-conversion',
+    navLabel: '消息进入模型前',
+    title: '让界面提示留在界面里',
+    question: '为什么 Agent 记得一条消息，模型却不一定看到？',
+    outcome: 'Agent 上下文保留提示，Provider 只收到可转换消息',
+    minutes: 7,
+    mechanism: 'AgentMessage 到 LLM Message 的转换',
+    prediction: {
+      prompt: '上下文里出现一条只给界面看的 status 消息，下一次请求应该怎样处理？',
+      options: [
+        { id: 'send-all', label: '原样发给 Provider' },
+        { id: 'convert', label: '按规则转换或过滤' },
+        { id: 'delete', label: '从 Agent 上下文删除' },
+      ],
+      preferredId: 'convert',
+    },
+    runLabel: '生成 Provider 消息',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: 'Agent 上下文有两项', detail: '用户问题和 UI status 都保留为 AgentMessage。', tone: 'request' },
+      { label: '执行消息转换', detail: 'convertToLlm 转换用户消息，并过滤 UI-only status。', tone: 'action' },
+      { label: 'Provider 只收到一项', detail: '模型请求包含用户问题，不包含界面状态提示。', tone: 'result' },
+    ],
+    experiment: {
+      label: '把 status 改为可转换说明',
+      trace: [
+        { label: 'Agent 上下文仍有两项', detail: '消息数量不变，第二项从 UI-only status 改为可转换说明。', tone: 'request' },
+        { label: '转换规则产生消息', detail: 'convertToLlm 把第二项转换成 Provider 支持的 user message。', tone: 'change' },
+        { label: 'Provider 收到两项', detail: '模型请求现在同时包含用户问题和补充说明。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: '应用新增一种自定义 AgentMessage，但 Provider 不认识它，应该先做什么？',
+      options: [
+        { id: 'convert', label: '增加转换或过滤规则' },
+        { id: 'cast', label: '强制当成任意 Message' },
+        { id: 'send', label: '直接交给 Provider 猜测' },
+      ],
+      answerId: 'convert',
+      success: '对。Agent 可以保存应用消息，但进入 Provider 前必须得到明确转换结果。',
+      retry: '先区分 Agent 自己保存的消息，与 Provider API 接受的消息类型。',
+    },
+    explanation: 'Pi 的 Agent 上下文可以保留应用自定义消息，但 Provider 只接受它支持的消息。每次请求前，Pi 可以先整理上下文，再把保留下来的 AgentMessage 转成 LLM Message。AgentMessage 是 Agent 保存的消息，transformContext 负责可选的上下文整理，convertToLlm 负责最终转换或过滤。',
+    terms: [
+      { term: 'AgentMessage', definition: 'Agent 上下文保存的消息，可以包含应用自定义类型。' },
+      { term: 'transformContext', definition: '模型调用前可选的上下文整理步骤。' },
+      { term: 'convertToLlm', definition: '把 AgentMessage 转换或过滤成 Provider 支持消息的函数。' },
+    ],
+    minimalCode: `const transformed = await transformContext(messages)
+const providerMessages = convertToLlm(transformed)
+return provider.stream(providerMessages)`,
+    teachingLimit: '演示使用两个固定消息和同步转换，不复现流式 Provider、图片内容、缓存、错误恢复或应用自定义联合类型；真实转换失败会中断低层循环。',
+    searchTerms: ['模型为什么看不到消息', '自定义消息怎么发送', 'agent message', 'convert to llm', 'transform context'],
+    claimIds: ['pi-agent-message-conversion'],
+  },
+  {
+    id: 'lesson-pi-03-extension-tool-registration',
+    track: 'pi',
+    slug: 'pi-extension-tool-registration',
+    navLabel: 'Extension 加载工具',
+    title: '给 Pi 加一个工具，再完整撤下',
+    question: '为什么移除 Extension 后还要 reload？',
+    outcome: '工具加入当前会话，reload 后按新资源重新生成',
+    minutes: 8,
+    mechanism: 'Extension 工具注册与 Session reload',
+    prediction: {
+      prompt: 'Extension 调用 registerTool 后，新工具会写到哪里？',
+      options: [
+        { id: 'loop', label: '写进 agent loop 分支' },
+        { id: 'table', label: '写入 Extension 工具表' },
+        { id: 'provider', label: '永久写入 Provider' },
+      ],
+      preferredId: 'table',
+    },
+    runLabel: '加载统计工具 Extension',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: '会话没有统计工具', detail: '当前 Session 工具表中没有 count_text。', tone: 'request' },
+      { label: 'Extension 注册工具', detail: 'registerTool 写入当前 Extension，并刷新 Session 工具注册表。', tone: 'action' },
+      { label: '工具对会话可见', detail: '当前 Session 可以选择并执行 count_text。', tone: 'result' },
+    ],
+    experiment: {
+      label: '移除 Extension 并 reload',
+      trace: [
+        { label: '资源配置改变', detail: 'Extension 列表不再包含统计工具资源。', tone: 'request' },
+        { label: '会话重新加载', detail: 'reload 使旧 runner 失效，并从当前资源重建工具表。', tone: 'change' },
+        { label: '工具不再可见', detail: '重建后的 Session 工具表中没有 count_text。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: '能否调用 registerTool 的返回值，像 DSH disposer 一样立刻撤销这次注册？',
+      options: [
+        { id: 'yes', label: '可以，返回值就是 disposer' },
+        { id: 'reload', label: '不可以，应修改资源后 reload' },
+        { id: 'restart', label: '只能重启整个操作系统' },
+      ],
+      answerId: 'reload',
+      success: '对。Pi registerTool 返回 void；这条路径通过资源变化和 reload 重建工具表。',
+      retry: '不要套用 DSH 的 exact disposer：这里的 registerTool 没有返回清理函数。',
+    },
+    explanation: 'Pi Extension 在加载时把工具定义写入自己的工具表，并让 Session 刷新当前可用工具。移除扩展资源后，reload 会让旧 runner 失效，再按现有资源重建工具表。Extension 是可加载的扩展单元，registerTool 把工具加入扩展表，reload 按当前资源重建会话能力。',
+    terms: [
+      { term: 'Extension', definition: '向 Pi coding agent 添加工具、命令或事件处理的扩展单元。' },
+      { term: 'registerTool', definition: '把工具定义加入当前 Extension 工具表的方法。' },
+      { term: 'reload', definition: '让旧 runner 失效，并按当前资源重建会话能力。' },
+    ],
+    minimalCode: `extension.registerTool(countText)
+// Session 刷新后工具可见
+await session.reload()
+// 已移除的 Extension 工具不再进入新工具表`,
+    teachingLimit: '演示使用内存资源列表和确定性 reload，不复现文件发现、Extension hooks、命令、主题、runner 中止等待或工具重名覆盖。',
+    searchTerms: ['Pi 怎么加工具', 'extension 怎么卸载', 'reload 为什么重建', 'register tool', '工具为什么还在'],
+    claimIds: ['pi-extension-tool-registration'],
+  },
 ]
 
 export const lessonTracks: ReadonlyArray<{ id: UpstreamId; shortLabel: string; label: string; description: string }> = [
@@ -295,7 +412,7 @@ export const lessonTracks: ReadonlyArray<{ id: UpstreamId; shortLabel: string; l
   { id: 'pi', shortLabel: 'Pi', label: 'Pi Agent Harness', description: '从消息、工具闭环和 Extension 理解轻量 Agent harness。' },
 ]
 
-export const lessons = z.array(lessonSchema).length(4).parse(lessonInput)
+export const lessons = z.array(lessonSchema).length(6).parse(lessonInput)
 export const lessonsBySlug = new Map(lessons.map(lesson => [lesson.slug, lesson]))
 export const lessonsByTrack: Record<UpstreamId, Lesson[]> = {
   dsh: lessons.filter(lesson => lesson.track === 'dsh'),

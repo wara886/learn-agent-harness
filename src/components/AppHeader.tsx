@@ -1,4 +1,4 @@
-import { BookOpen, Search, Trash2, X } from 'lucide-react'
+import { BookOpen, Radar, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { lessons, lessonPath } from '../domain/lessons.ts'
@@ -43,11 +43,14 @@ export function AppHeader() {
     <header className="app-header">
       <div className="header-inner">
         <Link className="brand" to="/" aria-label="Learn Agent Harness 首页">
-          <strong>看懂 Agent</strong>
-          <small>Pi · DeepSeek Harness 入门</small>
+          <span className="brand-mark" aria-hidden="true"><Radar /></span>
+          <span className="brand-copy">
+            <strong>看懂 Agent</strong>
+            <small>Pi · DeepSeek Harness 入门</small>
+          </span>
         </Link>
         <div className="course-progress" aria-label={`已完成 ${completed} 课，共 ${lessons.length} 课`}>
-          <span>{completed}/{lessons.length}</span>
+          <span className="progress-copy"><small>学习进度</small><strong>{completed}/{lessons.length}</strong></span>
           <span className="progress-track" aria-hidden="true">
             <span style={{ width: `${completed / lessons.length * 100}%` }} />
           </span>

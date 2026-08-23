@@ -16,7 +16,7 @@ The primary user is an application developer who can read basic JavaScript, Type
 
 ## Product Purpose
 
-Learn Agent Harness starts from a visible Agent task, lets the learner predict and change one input, then names the mechanism behind the observed state change. The current beta proves this approach with three DeepSeek Harness lessons and the first Pi comparison lesson.
+Learn Agent Harness starts from a visible Agent task, lets the learner predict and change one input, then names the mechanism behind the observed state change. The current beta applies this approach to three DeepSeek Harness lessons and three Pi comparison lessons.
 
 ## Positioning
 
@@ -28,8 +28,8 @@ The first visit begins with a task to find a release port, not a course catalog.
 
 ## Capabilities and Constraints
 
-- The current beta covers the task-based interactive classroom direction, three DSH lessons, one Pi comparison lesson, nine fixed-source claims, desktop and 390 px flows, and a five-person usability gate.
-- The DSH lessons cover a tool-call round trip, Session event projection, and reversible tool registration; the first Pi lesson covers its tool-result round trip.
+- The current beta covers the task-based interactive classroom direction, three DSH lessons, three Pi comparison lessons, nine fixed-source claims, desktop and 390 px flows, and a five-person usability gate.
+- The DSH lessons cover a tool-call round trip, Session event projection, and reversible tool registration; the Pi lessons cover its tool-result round trip, AgentMessage conversion, and Extension tool reload.
 - Demonstrations do not call a model, require an API key, or represent a production DeepSeek Harness API.
 - The current beta remains unvalidated until five target learners complete the recorded M4 gate.
 - DeepSeek Harness product fixes, real model execution, authentication, analytics infrastructure, and the full curriculum are out of scope.

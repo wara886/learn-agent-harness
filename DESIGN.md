@@ -160,7 +160,7 @@ Keep the title block compact: track abbreviation and current/total lesson count,
 
 Every track reuses one teaching loop: prediction, main run, three-row trace, one changed input, and a transfer checkpoint. The Pi tool-result lesson uses this same loop to show `toolCall` → `ToolResultMessage` → next assistant answer; the changed result must visibly change the next answer rather than becoming an isolated fact panel.
 
-The trace always reserves all three rows. Current request, changed input, and resolved result use teal, coral, and yellow backgrounds respectively, while labels and details state the transition in words. After the initial run changes from running to observed at 560 px and below, move keyboard focus to the "任务过程" heading and position that heading below the sticky navigation immediately. Do not focus a transient result row.
+The trace always reserves all three rows. Current request, changed input, and resolved result use teal, coral, and yellow backgrounds respectively, while labels and details state the transition in words. Pi lessons reuse this trace to show tool-result round trips, application-message conversion, and Extension reload without introducing track-specific controls. After the initial run changes from running to observed at 560 px and below, move keyboard focus to the "任务过程" heading and position that heading below the sticky navigation immediately. Do not focus a transient result row.
 
 ### Progressive Disclosure
 

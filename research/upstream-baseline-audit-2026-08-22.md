@@ -8,7 +8,7 @@
 
 现有三课引用的 6 条 DeepSeek Harness 声明在新基线上仍成立。`agent-loop` 新增了取消流式响应时持久化已展示前缀的行为，但没有改变工具结果进入后续请求、Session surface 投影或工具注册 disposer 的课程结论。
 
-Pi 对照课程已固定 3 条首批声明：工具调用与结果往返、`AgentMessage` 在模型调用前转换、Extension 工具注册与 reload 重建。它们尚未被当前三课使用，只为下一阶段 Pi 纵向切片提供已审核输入。
+Pi 对照课程固定 3 条首批声明：工具调用与结果往返、`AgentMessage` 在模型调用前转换、Extension 工具注册与 reload 重建。三条声明分别进入一节 Pi 任务课，并共用同一课程 runner。
 
 ## DeepSeek Harness 复核
 

@@ -3,11 +3,11 @@ import { claims, claimsById, factBaseline, piFactBaseline, sourceUrl, upstreams 
 import { lessons } from './lessons.ts'
 
 describe('frozen lesson content', () => {
-  it('loads three DSH lessons and one Pi lesson', () => {
-    expect(lessons).toHaveLength(4)
-    expect(new Set(lessons.map(lesson => lesson.slug)).size).toBe(4)
+  it('loads three DSH lessons and three Pi lessons', () => {
+    expect(lessons).toHaveLength(6)
+    expect(new Set(lessons.map(lesson => lesson.slug)).size).toBe(6)
     expect(lessons.filter(lesson => lesson.track === 'dsh')).toHaveLength(3)
-    expect(lessons.filter(lesson => lesson.track === 'pi')).toHaveLength(1)
+    expect(lessons.filter(lesson => lesson.track === 'pi')).toHaveLength(3)
   })
 
   it('uses only approved claims from each lesson track', () => {

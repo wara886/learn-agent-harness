@@ -15,7 +15,7 @@ export function CourseNavigation({ currentLesson }: { currentLesson: Lesson }) {
   const currentIndex = lessonsByTrack[currentLesson.track].findIndex(lesson => lesson.id === currentLesson.id)
 
   return (
-    <aside className={`course-directory ${open ? 'is-open' : ''}`} aria-label="学习导航">
+    <aside className={`course-directory ${open ? 'is-open' : ''}`} data-track={currentLesson.track} aria-label="学习导航">
       <button
         className="directory-trigger"
         type="button"
@@ -33,7 +33,7 @@ export function CourseNavigation({ currentLesson }: { currentLesson: Lesson }) {
 
       <div className="directory-panel" id="course-directory-panel">
         <header className="directory-heading">
-          <span>学习路径</span>
+          <span>RUNBOOK · 学习路径</span>
           <h2>课程目录</h2>
           <p>先完成任务，再对照两套 Agent harness。</p>
         </header>

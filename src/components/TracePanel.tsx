@@ -24,7 +24,8 @@ export function TracePanel({ lesson, state }: { lesson: Lesson; state: RunnerSta
   return (
     <section className="trace-panel" aria-labelledby="trace-heading">
       <div className="panel-heading">
-        <div>
+        <span className="panel-code" aria-hidden="true">02</span>
+        <div className="panel-title-copy">
           <h2 id="trace-heading" tabIndex={-1}>任务过程</h2>
           <p>每次只观察一个变化</p>
         </div>
@@ -36,6 +37,7 @@ export function TracePanel({ lesson, state }: { lesson: Lesson; state: RunnerSta
           const current = index === visibleCount - 1
           return (
             <li className={`trace-row tone-${item.tone} ${visible ? 'is-visible' : ''} ${current ? 'is-current' : ''}`} key={`${item.label}-${index}`}>
+              <span className="trace-step" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
               <span className="trace-icon" aria-hidden="true">
                 {state.phase === 'running' && index === 0
                   ? <LoaderCircle className="spin" />

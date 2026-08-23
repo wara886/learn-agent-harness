@@ -36,7 +36,7 @@ The first visit begins with a task to find a release port, not a course catalog.
 
 ## Brand Commitments
 
-The confirmed direction is “任务式互动课堂”: light neutral surfaces, reading and runtime results first, and limited teal, coral, and yellow roles for request, action, and result states. The interface must not resemble a dark engineering console.
+The confirmed direction is “Agent Flight Recorder / 飞行试验遥测表”: cool telemetry paper, a graphite command surface, cobalt actions, orange experiment states, and green completion. Fixed run numbers and numbered work sections make the lesson structure scannable; the interface must not become a generic documentation page or decorative dashboard.
 
 ## Evidence on Hand
 

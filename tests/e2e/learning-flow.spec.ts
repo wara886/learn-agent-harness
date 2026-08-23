@@ -166,6 +166,30 @@ test('supports the keyboard path without serious accessibility violations', asyn
   expect(results.violations.filter(violation => violation.impact === 'serious' || violation.impact === 'critical')).toEqual([])
 })
 
+test('keeps the current route when the skip link focuses lesson content', async ({ page }) => {
+  await page.goto('/#/learn/pi-tool-result-round-trip')
+  await page.keyboard.press('Tab')
+  const skipLink = page.getByRole('link', { name: '跳到课程内容' })
+  await expect(skipLink).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/#\/learn\/pi-tool-result-round-trip$/)
+  await expect(page.locator('#main-content')).toBeFocused()
+})
+
+test('has no serious accessibility violations in initial navigation states', async ({ page }) => {
+  async function expectNoSeriousViolations() {
+    const results = await new AxeBuilder({ page }).analyze()
+    expect(results.violations.filter(violation => violation.impact === 'serious' || violation.impact === 'critical')).toEqual([])
+  }
+
+  await expectNoSeriousViolations()
+  await page.goto('/#/learn/pi-tool-result-round-trip')
+  await expectNoSeriousViolations()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole('button', { name: /课程目录.*Pi/ }).click()
+  await expectNoSeriousViolations()
+})
+
 test('does not request remote runtime resources', async ({ page }) => {
   const requests: string[] = []
   page.on('request', request => requests.push(request.url()))

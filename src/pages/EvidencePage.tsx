@@ -10,7 +10,7 @@ export function EvidencePage() {
   if (claim === undefined) return <Navigate to="/map" replace />
 
   return (
-    <main className="evidence-page" id="main-content">
+    <main className="evidence-page" data-track={claim.upstream} id="main-content" tabIndex={-1}>
       <Link className="back-link" to={sourceLesson?.from ?? '/map'}>
         <ArrowLeft aria-hidden="true" />
         {sourceLesson === null ? '返回学习路径' : `返回“${sourceLesson.label}”`}

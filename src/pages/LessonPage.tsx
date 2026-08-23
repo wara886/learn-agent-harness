@@ -74,7 +74,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
   }
 
   return (
-    <div className="lesson-layout">
+    <div className="lesson-layout" data-track={lesson.track}>
       <CourseNavigation currentLesson={lesson} />
       <main className="lesson-page" id="main-content" ref={mainRef} tabIndex={-1}>
       {!storageAvailable && <div className="storage-notice" role="status">本次进度不会保存；当前课程仍可完整运行。</div>}
@@ -94,7 +94,10 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       </nav>
 
       <header className="task-intro">
-        <div className="lesson-sequence">{track.shortLabel} · 第 {lessonIndex + 1} 课 / 共 {trackLessons.length} 课</div>
+        <div className="lesson-sequence">
+          <span>RUN {track.shortLabel}-{String(lessonIndex + 1).padStart(2, '0')}</span>
+          <span>第 {lessonIndex + 1} 课 / 共 {trackLessons.length} 课</span>
+        </div>
         <h1>{lesson.title}</h1>
         <p className="lesson-question">{lesson.question}</p>
         <dl className="task-facts">
@@ -107,7 +110,8 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       <div className="workbench">
         <section className="decision-panel" aria-labelledby="prediction-heading">
           <div className="panel-heading">
-            <div>
+            <span className="panel-code" aria-hidden="true">01</span>
+            <div className="panel-title-copy">
               <h2 id="prediction-heading">先做一个判断</h2>
               <p>{lesson.prediction.prompt}</p>
             </div>
@@ -156,7 +160,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       {(state.phase === 'checking' || state.phase === 'failed' || state.phase === 'completed') && (
         <section className="checkpoint" aria-labelledby="checkpoint-heading">
           <div className="checkpoint-heading">
-            <span aria-hidden="true">?</span>
+            <span aria-hidden="true">03</span>
             <div><h2 id="checkpoint-heading">换一个场景试试</h2><p>{lesson.checkpoint.prompt}</p></div>
           </div>
           <div className="checkpoint-options">
@@ -180,7 +184,10 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
 
       {(state.phase === 'observed' || state.experimentApplied) && (
         <section className="understanding" aria-labelledby="understanding-heading">
-          <h2 id="understanding-heading">把刚才的变化说清楚</h2>
+          <div className="understanding-heading">
+            <span aria-hidden="true">04</span>
+            <h2 id="understanding-heading">把刚才的变化说清楚</h2>
+          </div>
           <p>{lesson.explanation}</p>
           <dl className="term-list">
             {lesson.terms.map(item => <div key={item.term}><dt>{item.term}</dt><dd>{item.definition}</dd></div>)}

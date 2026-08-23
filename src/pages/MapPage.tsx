@@ -6,13 +6,13 @@ import { useProgress } from '../domain/progress.tsx'
 export function MapPage() {
   const { data } = useProgress()
   return (
-    <main className="map-page" id="main-content">
+    <main className="map-page" id="main-content" tabIndex={-1}>
       <header className="page-intro">
         <h1>两条轨道，同一种学习方法</h1>
         <p>先完成任务，再观察状态变化，最后对照 Pi 与 DeepSeek Harness 的真实源码。</p>
       </header>
       {lessonTracks.map(track => (
-        <section className="map-track" key={track.id} aria-labelledby={`track-${track.id}`}>
+        <section className="map-track" data-track={track.id} key={track.id} aria-labelledby={`track-${track.id}`}>
           <header className="map-track-header">
             <div>
               <h2 id={`track-${track.id}`}>{track.label}</h2>

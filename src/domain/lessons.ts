@@ -41,6 +41,13 @@ export const lessonSchema = z.object({
     success: z.string().min(1),
     retry: z.string().min(1),
   }),
+  recap: z.object({
+    principle: z.string().min(1),
+    debugPrompt: z.string().min(1),
+    contrastLessonId: z.string().min(1),
+    contrast: z.string().min(1),
+    nextReason: z.string().min(1),
+  }),
   explanation: z.string().min(1),
   terms: z.array(z.object({ term: z.string(), definition: z.string() })).min(1).max(3),
   minimalCode: z.string().min(1),
@@ -120,6 +127,13 @@ const lessonInput: Lesson[] = [
       success: '你抓住了因果链：工具结果改变，最终结论也必须改变。',
       retry: '再比较工具实际返回的内容，答案不能沿用另一个分支的事实。',
     },
+    recap: {
+      principle: '事实不在问题里时，先取得工具结果，再形成有依据的回答。',
+      debugPrompt: '最终回答使用的是本次工具结果，还是沿用了另一个分支的猜测？',
+      contrastLessonId: 'lesson-pi-01-tool-result-round-trip',
+      contrast: 'Pi 也把工具结果送回下一轮，但用 ToolResultMessage 明确表示结果消息；本课关注 DSH 的工具执行与 Session 往返。',
+      nextReason: '下一课继续追踪：工具结果写入记录后，哪些内容真正进入模型视图。',
+    },
     explanation: '它不能只靠问题里的文字知道工作区端口，所以先去读；读到的内容回来后，它才决定怎样结束。这个反复判断“回答还是行动”的过程叫 Agent loop，请求外部能力执行动作叫 tool call。',
     terms: [
       { term: 'Agent loop', definition: '反复判断下一步是回答还是行动。' },
@@ -173,6 +187,13 @@ const lessonInput: Lesson[] = [
       answerId: 'unchanged',
       success: '对。它记录一次边界，但不会独立生成模型消息。',
       retry: '先区分“被保存”与“被投影成模型消息”，两者不是同一条件。',
+    },
+    recap: {
+      principle: '完整事件日志负责回放；模型 surface 只保留当前请求需要的消息。',
+      debugPrompt: '这条记录只是被保存，还是也能投影成模型消息？',
+      contrastLessonId: 'lesson-pi-02-agent-message-conversion',
+      contrast: 'Pi 在请求前用 transformContext 和 convertToLlm 转换 AgentMessage；DSH 从 Session surface 派生模型消息。',
+      nextReason: '理解模型看到什么后，下一课观察工具怎样加入当前可见能力。',
     },
     explanation: '系统为了回放会记下很多过程，但下一次请求不需要把每条记录都当成聊天消息。它按固定规则取出需要的部分：一次追加保存的记录叫 SessionEvent，当前有序集合叫 surface，从记录得到消息的规则叫 projection。',
     terms: [
@@ -228,6 +249,13 @@ const lessonInput: Lesson[] = [
       answerId: 'hidden',
       success: '对。注册和撤销改变当前可见能力，主循环本身没有新增分支。',
       retry: '观察释放后的工具目录：清理动作要恢复注册前的可见集合。',
+    },
+    recap: {
+      principle: '能力通过注册表进入运行时，并由注册拥有者精确撤销。',
+      debugPrompt: '工具是否仍在当前注册表，以及对应 disposer 是否已经执行？',
+      contrastLessonId: 'lesson-pi-03-extension-tool-registration',
+      contrast: 'Pi Extension 的 registerTool 不返回 DSH disposer；移除资源后通过 reload 重建会话工具表。',
+      nextReason: '能力可以动态变化后，下一课处理另一种运行时变化：上下文接近容量。',
     },
     explanation: '主循环每次读取当前可用能力，所以新增能力只需加入目录；加入时同时保存一条清理动作，撤下时按这条动作恢复。装载注册动作的单元叫 plugin，可追踪的注册叫 effect，执行后撤销注册的函数叫 disposer。',
     terms: [
@@ -285,6 +313,13 @@ const lessonInput: Lesson[] = [
       success: '对。replace 改变模型 surface，不会把原事件从追加式日志中抹去。',
       retry: '回想第 02 课：完整日志和模型看到的 surface 是两个不同层次。',
     },
+    recap: {
+      principle: '压缩改变模型 surface，不删除追加式事件日志。',
+      debugPrompt: '摘要成功提交 replace 了吗，还是失败后仍使用原 surface？',
+      contrastLessonId: 'lesson-pi-04-session-tree',
+      contrast: 'Pi 会话树通过 leaf 选择当前分支，DSH compaction 通过摘要替换模型视图区段；两者都保留历史，但解决不同问题。',
+      nextReason: '单会话上下文可控后，下一课把可独立的大任务拆给多个执行单元。',
+    },
     explanation: 'DSH 在上下文压力下选择一段较早 surface，生成摘要检查点，再用 replace 让后续模型请求看到“摘要 + 最近消息”。原事件仍留在 Session 日志中。compaction 是压缩过程，checkpoint 是保留下来的背景摘要，surface replace 是改变模型视图而不删除日志的操作。',
     terms: [
       { term: 'compaction', definition: '把较早上下文归纳成更短检查点的过程。' },
@@ -340,6 +375,13 @@ const lessonInput: Lesson[] = [
       answerId: 'pipeline',
       success: '对。有数据依赖时应顺序推进；并行只用于真正互不依赖的工作。',
       retry: '先问第二项开始时是否已经需要第一项的结果。',
+    },
+    recap: {
+      principle: '只并行真正独立的任务，并在汇总前等待每个 child 结算。',
+      debugPrompt: '子任务之间是否存在输入依赖，失败结果是否在汇总中明确保留？',
+      contrastLessonId: 'lesson-pi-05-resource-skills',
+      contrast: 'Pi Skills 按需提供知识，DSH Workflow 把工作交给独立 child；一个减少固定知识负担，一个拆分执行负担。',
+      nextReason: 'DSH 主线完成后，从 Pi 的低层工具循环重新观察同一个工具结果闭环。',
     },
     explanation: 'Workflow 脚本用 agent() 把一个明确任务交给具名子 Agent provider，并用生命周期事件观察开始与结算。互不依赖的任务可以并行等待；存在输入依赖时应顺序推进。Workflow 是可复现的编排脚本，subagent 是独立执行任务的 child，barrier 表示继续前必须等一组任务全部结算。',
     terms: [
@@ -397,6 +439,13 @@ const lessonInput: Lesson[] = [
       success: '对。没有工具调用或排队消息时，这次低层循环已经完成。',
       retry: '先观察循环继续的条件：工具调用和排队消息都不存在时，没有新的动作需要执行。',
     },
+    recap: {
+      principle: 'toolCall 不是最终答案；工具结果必须进入上下文，再由下一轮形成回答。',
+      debugPrompt: 'ToolResultMessage 是否追加成功，循环是否在没有新调用时停止？',
+      contrastLessonId: 'lesson-01-tool-first-answer',
+      contrast: 'DSH 同样先执行工具再形成结论，但强调工具执行与 Session 的往返；Pi 用 ToolResultMessage 明确表示结果消息。',
+      nextReason: '下一课继续看更新后的 AgentMessage 在进入 Provider 前如何转换。',
+    },
     explanation: 'Pi 不把 toolCall 当成任务结果。它先执行工具，把结果保存成 ToolResultMessage，再把更新后的上下文交给下一轮模型。这个来回过程属于 agent loop；ToolResultMessage 是工具执行后回到上下文的结果消息。',
     terms: [
       { term: 'Pi agent loop', definition: '在回答、工具执行和排队消息之间推进上下文的低层循环。' },
@@ -452,6 +501,13 @@ const lessonInput: Lesson[] = [
       answerId: 'convert',
       success: '对。Agent 可以保存应用消息，但进入 Provider 前必须得到明确转换结果。',
       retry: '先区分 Agent 自己保存的消息，与 Provider API 接受的消息类型。',
+    },
+    recap: {
+      principle: 'Agent 可以保留应用消息，但 Provider 只接收明确转换后的消息。',
+      debugPrompt: '自定义消息有转换或过滤规则吗，还是被误发给 Provider？',
+      contrastLessonId: 'lesson-02-log-to-model-view',
+      contrast: 'DSH 从 Session surface 投影模型消息；Pi 在请求前把 AgentMessage 转换成 Provider 支持的消息。',
+      nextReason: '消息边界清楚后，下一课观察 Extension 如何改变会话工具表。',
     },
     explanation: 'Pi 的 Agent 上下文可以保留应用自定义消息，但 Provider 只接受它支持的消息。每次请求前，Pi 可以先整理上下文，再把保留下来的 AgentMessage 转成 LLM Message。AgentMessage 是 Agent 保存的消息，transformContext 负责可选的上下文整理，convertToLlm 负责最终转换或过滤。',
     terms: [
@@ -510,6 +566,13 @@ return provider.stream(providerMessages)`,
       answerId: 'reload',
       success: '对。Pi registerTool 返回 void；这条路径通过资源变化和 reload 重建工具表。',
       retry: '不要套用 DSH 的 exact disposer：这里的 registerTool 没有返回清理函数。',
+    },
+    recap: {
+      principle: 'Extension 改变资源定义；reload 按当前资源重建会话能力。',
+      debugPrompt: '资源列表已经改变了吗，当前 runner 是否完成 reload？',
+      contrastLessonId: 'lesson-03-register-and-remove-tool',
+      contrast: 'DSH 用 disposer 精确撤销一次注册；Pi 改变 Extension 资源后，通过 reload 重建当前会话的工具表。',
+      nextReason: '运行时资源能重建后，下一课看持久会话如何保留并切换分支。',
     },
     explanation: 'Pi Extension 在加载时把工具定义写入自己的工具表，并让 Session 刷新当前可用工具。移除扩展资源后，reload 会让旧 runner 失效，再按现有资源重建工具表。Extension 是可加载的扩展单元，registerTool 把工具加入扩展表，reload 按当前资源重建会话能力。',
     terms: [
@@ -570,6 +633,13 @@ await session.reload()
       success: '对。当前 leaf 决定活跃路径，其他分支继续保存在同一个 Session 文件里。',
       retry: '树里可以有多个末端，但当前上下文只跟随一个 leaf 的祖先路径。',
     },
+    recap: {
+      principle: 'JSONL 只追加条目；leaf 决定当前上下文所在的祖先路径。',
+      debugPrompt: '当前 leaf 指向哪条分支，构造上下文时是否混入了其他末端？',
+      contrastLessonId: 'lesson-04-compaction-checkpoint',
+      contrast: 'DSH compaction 用摘要缩短模型视图；Pi 会话树用 leaf 选择分支。两者都保留历史，但改变当前上下文的方式不同。',
+      nextReason: '会话状态可恢复后，下一课把可复用 Skills 和 Extensions 作为资源加载。',
+    },
     explanation: 'Pi 的每条 Session entry 都有 id 和 parentId，JSONL 因此既是追加记录也是一棵树。branch() 只把 leaf 移到旧节点，下一次 append 从那里长出新 child。leaf 是当前路径末端，parentId 指向父节点，branch 是切换当前位置而不是删除历史。',
     terms: [
       { term: 'JSONL', definition: '每行一个 JSON 对象的追加式文件格式。' },
@@ -625,6 +695,13 @@ await session.reload()
       answerId: 'package',
       success: '对。Pi package 可以声明 Extensions、Skills、prompt templates 和 themes。',
       retry: '这里要分发的是一组 Agent 资源，不是一次请求，也不是模型协议。',
+    },
+    recap: {
+      principle: '先暴露 Skill 名称与描述，任务匹配时再读取完整说明。',
+      debugPrompt: 'Skill 描述是否足以被发现，完整内容是否只在需要时加载？',
+      contrastLessonId: 'lesson-05-workflow-subagents',
+      contrast: 'DSH Workflow 把执行拆给独立 child；Pi Skills 按需加载知识。两者都减轻主 Agent 负担，但减少的负担不同。',
+      nextReason: '返回课程地图，按问题选择仍不清楚的一条机制复习。',
     },
     explanation: 'Pi 的 DefaultResourceLoader 从多个受控来源汇总资源。Skill 先以名称和描述进入可见目录，任务匹配后才读取完整 SKILL.md，这叫 progressive disclosure。Pi package 是可共享的一组扩展资源；Skill description 则决定 Agent 何时知道应该展开它。',
     terms: [

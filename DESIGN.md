@@ -173,6 +173,7 @@ General surfaces and controls use a restrained 4 px radius. Command buttons and 
 - **Skip link:** Make `跳到课程内容` the first keyboard-focusable control, keep it offscreen until focus, and target the focusable lesson `main` landmark at `#main-content`.
 - **Course map:** Group by track, preserve the vertical progress line within each group, show the task's state change, and use a clear "进入任务" command rather than card-like tiles.
 - **Glossary:** Use one scan-oriented row per term with a plain-language definition, first lesson, and fixed-source evidence. Search and framework filters stay above the list; terms never become decorative cards.
+- **Lesson recap:** Unlock after the transfer check. Present one reusable principle, one debugging question, the paired lesson in the other track, and the reason for continuing. Use flat ruled rows rather than cards.
 
 ### Lesson Header
 

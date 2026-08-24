@@ -1582,6 +1582,7 @@ h3 {
 
 .checkpoint,
 .understanding,
+.lesson-recap,
 .depth-layer,
 .lesson-pagination {
   padding: 36px 0;
@@ -1695,10 +1696,114 @@ h3 {
   font-weight: 780;
 }
 
+.term-list dt a {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--teal-dark);
+  text-underline-offset: 3px;
+}
+
+.term-list dt a svg {
+  width: 14px;
+  height: 14px;
+}
+
 .term-list dd {
   margin: 0;
   color: var(--muted);
   line-height: 1.5;
+}
+
+.lesson-recap {
+  border-top: 4px solid var(--success);
+}
+
+.lesson-recap-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.lesson-recap-heading > span {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #ffffff;
+  background: var(--success);
+  border-radius: 2px;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.lesson-recap-heading h2 {
+  margin-bottom: 5px;
+}
+
+.lesson-recap-heading p,
+.lesson-recap-grid p,
+.lesson-recap-contrast p,
+.lesson-next-reason {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.lesson-recap-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.lesson-recap-grid > div {
+  padding: 18px 0;
+}
+
+.lesson-recap h3 {
+  margin: 0 0 7px;
+  font-size: 16px;
+}
+
+.lesson-recap-contrast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.lesson-recap-contrast a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  color: var(--teal-dark);
+  font-weight: 720;
+  text-align: right;
+  text-decoration: none;
+}
+
+.lesson-recap-contrast a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.lesson-next-reason {
+  padding-top: 18px;
+  color: var(--ink);
+}
+
+.lesson-next-reason strong {
+  color: var(--ink);
 }
 
 .depth-layer {
@@ -2688,8 +2793,27 @@ h3 {
   }
 
   .term-list,
+  .lesson-recap-grid,
   .depth-layer {
     grid-template-columns: 1fr;
+  }
+
+  .lesson-recap-grid {
+    gap: 0;
+  }
+
+  .lesson-recap-grid > div + div {
+    border-top: 1px solid var(--line);
+  }
+
+  .lesson-recap-contrast {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .lesson-recap-contrast a {
+    justify-content: flex-start;
+    text-align: left;
   }
 
   .lesson-pagination {

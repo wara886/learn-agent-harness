@@ -1757,11 +1757,11 @@ h3 {
 
   .lesson-page {
     width: auto;
-    padding: 10px 0 56px;
+    padding: 6px 0 56px;
   }
 
   .lesson-breadcrumbs {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .continue-strip {
@@ -1770,18 +1770,23 @@ h3 {
   }
 
   .task-intro {
-    padding-bottom: 16px;
+    padding-bottom: 12px;
+  }
+
+  .lesson-sequence {
+    margin-bottom: 9px;
   }
 
   .task-intro h1 {
     max-width: 16ch;
     margin-bottom: 8px;
-    font-size: 32px;
+    font-size: 30px;
   }
 
   .lesson-question {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     font-size: 16px;
+    line-height: 1.45;
   }
 
   .task-facts {
@@ -1796,16 +1801,21 @@ h3 {
   }
 
   .task-facts > div {
-    padding: 9px 10px;
+    padding: 7px 10px;
+  }
+
+  .task-facts dt {
+    margin-bottom: 3px;
   }
 
   .task-facts dd {
     font-size: 14px;
+    line-height: 1.35;
   }
 
   .workbench {
     gap: 24px;
-    padding: 12px 0 24px;
+    padding: 6px 0 24px;
   }
 
   .decision-panel {

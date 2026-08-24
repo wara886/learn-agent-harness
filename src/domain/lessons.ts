@@ -233,6 +233,118 @@ const lessonInput: Lesson[] = [
     claimIds: ['dsh-tools-registration-visible', 'dsh-tools-registration-disposer'],
   },
   {
+    id: 'lesson-04-compaction-checkpoint',
+    track: 'dsh',
+    slug: 'compaction-checkpoint',
+    navLabel: '压缩旧上下文',
+    title: '保留结论，收起过长历史',
+    question: '会话越来越长时，为什么不是直接删除旧消息？',
+    outcome: '旧事件保留，模型 surface 改用摘要检查点',
+    minutes: 8,
+    mechanism: 'DSH compaction 的 surface replace',
+    prediction: {
+      prompt: '模型上下文接近容量时，哪种处理能兼顾可恢复性和后续请求？',
+      options: [
+        { id: 'delete', label: '从日志永久删除旧事件' },
+        { id: 'checkpoint', label: '写入摘要检查点并替换 surface 区段' },
+        { id: 'ignore', label: '继续发送全部历史' },
+      ],
+      preferredId: 'checkpoint',
+    },
+    runLabel: '生成压缩检查点',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: '旧区段造成压力', detail: '模型 surface 包含 18 条较早消息和 2 条最近消息。', tone: 'request' },
+      { label: '生成并记录摘要', detail: '压缩器记录 start、summary，并把较早区段归纳为检查点。', tone: 'action' },
+      { label: '请求视图缩短', detail: '旧事件仍在日志；surface 使用 1 条摘要和 2 条最近消息。', tone: 'result' },
+    ],
+    experiment: {
+      label: '把摘要生成改为失败',
+      trace: [
+        { label: '压力保持不变', detail: '同一段历史仍接近模型容量。', tone: 'request' },
+        { label: '摘要没有落地', detail: '压缩尝试记录失败，没有提交 replace 检查点。', tone: 'change' },
+        { label: '原 surface 保持', detail: '模型视图继续使用压缩前的持久 surface。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: '压缩成功后，需要回放早期工具细节时应查看哪里？',
+      options: [
+        { id: 'log', label: '查看仍然保留的 Session 事件日志' },
+        { id: 'summary-only', label: '只能依赖摘要中的一句话' },
+        { id: 'provider', label: '向 Provider 索要旧请求' },
+      ],
+      answerId: 'log',
+      success: '对。replace 改变模型 surface，不会把原事件从追加式日志中抹去。',
+      retry: '回想第 02 课：完整日志和模型看到的 surface 是两个不同层次。',
+    },
+    explanation: 'DSH 在上下文压力下选择一段较早 surface，生成摘要检查点，再用 replace 让后续模型请求看到“摘要 + 最近消息”。原事件仍留在 Session 日志中。compaction 是压缩过程，checkpoint 是保留下来的背景摘要，surface replace 是改变模型视图而不删除日志的操作。',
+    terms: [
+      { term: 'compaction', definition: '把较早上下文归纳成更短检查点的过程。' },
+      { term: 'checkpoint', definition: '承接已建立背景的摘要消息。' },
+      { term: 'surface replace', definition: '用新节点替换模型视图中的一个有序区段。' },
+    ],
+    minimalCode: `append('compaction/start')\nconst summary = await summarize(region)\nappend('compaction/summary', summary)\nappend('user/message', checkpoint, {\n  surfaceOp: { op: 'replace', start, end },\n})\nappend('compaction/end')`,
+    teachingLimit: '演示使用固定消息数和固定摘要，不复现 token 估算、模型策略、工具结果预剪枝、并发锁、取消或溢出重试。',
+    searchTerms: ['上下文太长怎么办', '压缩会删除历史吗', '摘要检查点', 'compaction', 'surface replace', 'context window'],
+    claimIds: ['dsh-compaction-surface-replacement'],
+  },
+  {
+    id: 'lesson-05-workflow-subagents',
+    track: 'dsh',
+    slug: 'workflow-subagents',
+    navLabel: 'Workflow 拆分任务',
+    title: '让两个子 Agent 分头调查',
+    question: '什么时候应该拆成子 Agent，而不是让主 Agent 一路做完？',
+    outcome: '两个子任务各自结算，Workflow 再汇总结果',
+    minutes: 9,
+    mechanism: 'Workflow agent() 与子 Agent 生命周期',
+    prediction: {
+      prompt: '依赖审计和文档审计互不依赖，Workflow 应怎样安排？',
+      options: [
+        { id: 'parallel', label: '启动两个子 Agent，等待两者结算' },
+        { id: 'duplicate', label: '让两个子 Agent 都做全部工作' },
+        { id: 'silent', label: '启动后不收集结果' },
+      ],
+      preferredId: 'parallel',
+    },
+    runLabel: '运行双调查 Workflow',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: 'Workflow 接收目标', detail: '发布检查需要依赖审计和文档审计两份独立结果。', tone: 'request' },
+      { label: '两个 child 成对结算', detail: '每次 agent() 都产生 start/end；Workflow 等待两个结果。', tone: 'action' },
+      { label: '汇总一次返回', detail: '脚本组合两份结果，workflow/end 报告本次运行已完成。', tone: 'result' },
+    ],
+    experiment: {
+      label: '让文档审计返回失败',
+      trace: [
+        { label: '拆分方式不变', detail: '仍启动依赖审计和文档审计两个 child。', tone: 'request' },
+        { label: '一个 child 失败', detail: '失败项以 null 进入普通组合分支，生命周期仍有对应 end。', tone: 'change' },
+        { label: '汇总标出缺口', detail: '最终结果保留依赖审计，并明确文档审计未取得。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: '第二项任务必须使用第一项输出时，应该怎样组织？',
+      options: [
+        { id: 'pipeline', label: '先完成第一项，再把结果交给第二项' },
+        { id: 'parallel', label: '仍强制并行且忽略依赖' },
+        { id: 'forget', label: '只运行第二项' },
+      ],
+      answerId: 'pipeline',
+      success: '对。有数据依赖时应顺序推进；并行只用于真正互不依赖的工作。',
+      retry: '先问第二项开始时是否已经需要第一项的结果。',
+    },
+    explanation: 'Workflow 脚本用 agent() 把一个明确任务交给具名子 Agent provider，并用生命周期事件观察开始与结算。互不依赖的任务可以并行等待；存在输入依赖时应顺序推进。Workflow 是可复现的编排脚本，subagent 是独立执行任务的 child，barrier 表示继续前必须等一组任务全部结算。',
+    terms: [
+      { term: 'Workflow', definition: '按明确步骤组织多个任务和结果的脚本。' },
+      { term: 'subagent', definition: '通过具名 provider 启动、拥有独立运行结果的子 Agent。' },
+      { term: 'barrier', definition: '等待一组并行任务全部结算后再继续的位置。' },
+    ],
+    minimalCode: `const [deps, docs] = await parallel([\n  () => agent('audit dependencies'),\n  () => agent('audit docs'),\n])\nreturn { deps, docs }`,
+    teachingLimit: '演示固定两个 child 和文本结果，不复现 worker 隔离、资源上限、结构化 schema、provider/model override、取消或后台 continuable child。',
+    searchTerms: ['什么时候用子 agent', '怎么并行调查', 'workflow 怎么汇总', 'subagent', 'parallel', 'pipeline'],
+    claimIds: ['dsh-workflow-subagent-lifecycle'],
+  },
+  {
     id: 'lesson-pi-01-tool-result-round-trip',
     track: 'pi',
     slug: 'pi-tool-result-round-trip',
@@ -405,6 +517,118 @@ await session.reload()
     searchTerms: ['Pi 怎么加工具', 'extension 怎么卸载', 'reload 为什么重建', 'register tool', '工具为什么还在'],
     claimIds: ['pi-extension-tool-registration'],
   },
+  {
+    id: 'lesson-pi-04-session-tree',
+    track: 'pi',
+    slug: 'pi-session-tree',
+    navLabel: '会话分支与恢复',
+    title: '从旧节点尝试另一条方案',
+    question: '回到较早消息后，Pi 为什么不需要复制整份会话？',
+    outcome: '旧分支保留，新消息从选定 leaf 形成另一条路径',
+    minutes: 8,
+    mechanism: 'Pi JSONL session tree 与 leaf',
+    prediction: {
+      prompt: '选择旧消息 A，再输入新问题时，SessionManager 应怎样记录？',
+      options: [
+        { id: 'overwrite', label: '覆盖 A 后面的原消息' },
+        { id: 'branch', label: '把 leaf 移到 A，并追加新的 child' },
+        { id: 'copy', label: '复制整个 JSONL 文件才继续' },
+      ],
+      preferredId: 'branch',
+    },
+    runLabel: '创建另一条会话分支',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: '原分支已经存在', detail: 'A → B → C 保存在同一份追加式 JSONL 中，leaf 位于 C。', tone: 'request' },
+      { label: 'leaf 移回 A', detail: 'branch(A) 只改变当前位置，旧条目 B、C 保持不变。', tone: 'action' },
+      { label: '追加新 child D', detail: 'D 的 parentId 指向 A；当前路径变为 A → D。', tone: 'result' },
+    ],
+    experiment: {
+      label: '把 leaf 改回原分支 C',
+      trace: [
+        { label: '树结构保持不变', detail: 'A 下仍同时保留 B → C 和 D 两条路径。', tone: 'request' },
+        { label: '当前位置改变', detail: 'leaf 从 D 切换回 C，没有重写任何 JSONL 条目。', tone: 'change' },
+        { label: '恢复原上下文', detail: '从 C 向 parentId 回溯，得到 A → B → C。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: '要构造当前模型上下文，应从哪里开始遍历？',
+      options: [
+        { id: 'leaf', label: '从当前 leaf 沿 parentId 回到根' },
+        { id: 'file', label: '按文件行号把所有分支都发送' },
+        { id: 'latest', label: '只取最后写入的一行' },
+      ],
+      answerId: 'leaf',
+      success: '对。当前 leaf 决定活跃路径，其他分支继续保存在同一个 Session 文件里。',
+      retry: '树里可以有多个末端，但当前上下文只跟随一个 leaf 的祖先路径。',
+    },
+    explanation: 'Pi 的每条 Session entry 都有 id 和 parentId，JSONL 因此既是追加记录也是一棵树。branch() 只把 leaf 移到旧节点，下一次 append 从那里长出新 child。leaf 是当前路径末端，parentId 指向父节点，branch 是切换当前位置而不是删除历史。',
+    terms: [
+      { term: 'JSONL', definition: '每行一个 JSON 对象的追加式文件格式。' },
+      { term: 'leaf', definition: '当前会话路径所在的末端条目。' },
+      { term: 'parentId', definition: '条目指向其父节点的标识。' },
+    ],
+    minimalCode: `session.branch(entryA)\nsession.appendMessage(newQuestion)\n// new entry.parentId === entryA\nconst context = session.buildSessionContext()`,
+    teachingLimit: '演示只包含四个消息节点，不复现格式迁移、compaction、branch summary、label、custom entry 或跨文件分支。',
+    searchTerms: ['怎么回到旧消息', 'Pi 会话怎么分支', '为什么不用复制文件', 'jsonl', 'parentId', 'leaf'],
+    claimIds: ['pi-session-jsonl-tree'],
+  },
+  {
+    id: 'lesson-pi-05-resource-skills',
+    track: 'pi',
+    slug: 'pi-resource-skills',
+    navLabel: 'Packages 与 Skills',
+    title: '让项目 Skill 只在需要时展开',
+    question: 'Pi 怎样发现 Skill，又为什么不把全文一直塞进上下文？',
+    outcome: '发现 Skill 描述，匹配任务后再读取完整说明',
+    minutes: 8,
+    mechanism: 'ResourceLoader 与 Skill progressive disclosure',
+    prediction: {
+      prompt: '项目里新增 `.pi/skills/release/SKILL.md` 后，Pi reload 应怎样处理？',
+      options: [
+        { id: 'full', label: '把所有 Skill 全文永久加入每次请求' },
+        { id: 'discover', label: '先发现名称与描述，需要时再读取全文' },
+        { id: 'execute', label: '安装后立即执行 Skill 脚本' },
+      ],
+      preferredId: 'discover',
+    },
+    runLabel: '重新加载项目资源',
+    baselineVisibleSteps: 3,
+    baselineTrace: [
+      { label: '项目新增 Skill', detail: 'release/SKILL.md 含名称、描述、步骤和参考资料。', tone: 'request' },
+      { label: 'ResourceLoader 发现资源', detail: 'reload 汇总项目、全局、settings、CLI 和 package 中启用的 Skills。', tone: 'action' },
+      { label: '按需展开说明', detail: '系统提示只列名称与描述；发布任务匹配后再读取完整 SKILL.md。', tone: 'result' },
+    ],
+    experiment: {
+      label: '把 Skill 描述改得含糊',
+      trace: [
+        { label: '文件位置保持不变', detail: 'Skill 仍位于同一个项目资源目录。', tone: 'request' },
+        { label: '匹配信号变弱', detail: '描述只写“helpful”，没有说明适用任务。', tone: 'change' },
+        { label: '加载时机不明确', detail: '资源仍可发现，但模型更难判断何时读取完整说明。', tone: 'result' },
+      ],
+    },
+    checkpoint: {
+      prompt: '团队要一起使用 Extension、Skill 和主题，最合适的分发单元是什么？',
+      options: [
+        { id: 'package', label: '用 Pi package 声明并分发这些资源' },
+        { id: 'prompt', label: '把所有文件粘进一次用户消息' },
+        { id: 'provider', label: '修改模型 Provider 的 API' },
+      ],
+      answerId: 'package',
+      success: '对。Pi package 可以声明 Extensions、Skills、prompt templates 和 themes。',
+      retry: '这里要分发的是一组 Agent 资源，不是一次请求，也不是模型协议。',
+    },
+    explanation: 'Pi 的 DefaultResourceLoader 从多个受控来源汇总资源。Skill 先以名称和描述进入可见目录，任务匹配后才读取完整 SKILL.md，这叫 progressive disclosure。Pi package 是可共享的一组扩展资源；Skill description 则决定 Agent 何时知道应该展开它。',
+    terms: [
+      { term: 'ResourceLoader', definition: '发现、过滤并加载 Pi 资源的统一入口。' },
+      { term: 'Skill', definition: '按需读取的专业工作流、说明和配套资源。' },
+      { term: 'Pi package', definition: '可声明并分发 Extensions、Skills、prompts 和 themes 的包。' },
+    ],
+    minimalCode: `await resources.reload()\nconst { skills } = resources.getSkills()\n// prompt lists name + description\n// matching task reads the full SKILL.md`,
+    teachingLimit: '演示固定一个项目 Skill，不复现 git/npm 安装、项目信任、资源冲突、过滤规则、诊断或 Skill 内脚本权限。',
+    searchTerms: ['Pi 怎么找 skill', 'skill 为什么按需加载', '怎么共享 extension', 'resource loader', 'pi package', 'progressive disclosure'],
+    claimIds: ['pi-resource-loader-skills'],
+  },
 ]
 
 export const lessonTracks: ReadonlyArray<{ id: UpstreamId; shortLabel: string; label: string; description: string }> = [
@@ -412,7 +636,7 @@ export const lessonTracks: ReadonlyArray<{ id: UpstreamId; shortLabel: string; l
   { id: 'pi', shortLabel: 'Pi', label: 'Pi Agent Harness', description: '从消息、工具闭环和 Extension 理解轻量 Agent harness。' },
 ]
 
-export const lessons = z.array(lessonSchema).length(6).parse(lessonInput)
+export const lessons = z.array(lessonSchema).length(10).parse(lessonInput)
 export const lessonsBySlug = new Map(lessons.map(lesson => [lesson.slug, lesson]))
 export const lessonsByTrack: Record<UpstreamId, Lesson[]> = {
   dsh: lessons.filter(lesson => lesson.track === 'dsh'),

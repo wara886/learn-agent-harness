@@ -11,6 +11,7 @@ export const lessonSections = [
   { id: 'source-walkthrough', label: '源码拆解' },
   { id: 'architecture-connection', label: '架构联系' },
   { id: 'check-understanding', label: '思考题' },
+  { id: 'lesson-recap', label: '本课小结' },
 ] as const
 
 export function LessonContextRail({ lesson, state }: { lesson: Lesson; state: RunnerState }) {
@@ -22,6 +23,7 @@ export function LessonContextRail({ lesson, state }: { lesson: Lesson; state: Ru
     'execution-trace',
     ...(state.phase !== 'unstarted' && state.phase !== 'predicted' && state.phase !== 'running' ? ['source-walkthrough', 'architecture-connection'] : []),
     ...(state.phase === 'checking' || state.phase === 'failed' || state.phase === 'completed' ? ['check-understanding'] : []),
+    ...(state.phase === 'completed' ? ['lesson-recap'] : []),
   ]), [state.phase])
 
   useEffect(() => {

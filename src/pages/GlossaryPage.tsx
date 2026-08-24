@@ -1,6 +1,6 @@
 import { ArrowRight, BookOpenCheck, Code2, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { glossaryEntries } from '../domain/glossary.ts'
 import { lessonPath, lessonTracks } from '../domain/lessons.ts'
 import type { UpstreamId } from '../domain/claims.ts'
@@ -8,7 +8,8 @@ import type { UpstreamId } from '../domain/claims.ts'
 type GlossaryTrack = 'all' | UpstreamId
 
 export function GlossaryPage() {
-  const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('term') ?? '')
   const [track, setTrack] = useState<GlossaryTrack>('all')
   const filtered = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('zh-CN')

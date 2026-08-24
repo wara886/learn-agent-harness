@@ -41,6 +41,16 @@ describe('frozen lesson content', () => {
     for (const lesson of lessons) expect(lesson.terms.length).toBeLessThanOrEqual(3)
   })
 
+  it('pairs every lesson recap with the corresponding lesson in the other track', () => {
+    const lessonsById = new Map(lessons.map(lesson => [lesson.id, lesson]))
+    for (const lesson of lessons) {
+      const contrastLesson = lessonsById.get(lesson.recap.contrastLessonId)
+      expect(contrastLesson).toBeDefined()
+      expect(contrastLesson?.track).not.toBe(lesson.track)
+      expect(contrastLesson?.recap.contrastLessonId).toBe(lesson.id)
+    }
+  })
+
   it('assigns every lesson to one framework chapter', () => {
     expect(lessonChapters).toHaveLength(4)
     expect(lessonChapters.flatMap(chapter => chapter.lessonIds)).toHaveLength(lessons.length)

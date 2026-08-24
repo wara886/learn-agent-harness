@@ -65,6 +65,34 @@ describe('task-first application', () => {
     expect(screen.getByRole('heading', { name: 'Pi agent loop' })).toBeVisible()
   })
 
+  it('opens the glossary with a lesson term already selected', () => {
+    renderApp('/glossary?term=ToolResultMessage')
+    expect(screen.getByRole('searchbox', { name: '搜索术语' })).toHaveValue('ToolResultMessage')
+    expect(screen.getByRole('heading', { name: '1 个术语' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'ToolResultMessage' })).toBeVisible()
+  })
+
+  it('reveals the reusable recap only after a lesson is completed', () => {
+    window.localStorage.setItem('learn-agent-harness-progress-v3', JSON.stringify({
+      contentVersion: 3,
+      lastLesson: 'first-tool-result',
+      sectionProgress: {},
+      lessons: {
+        'first-tool-result': {
+          phase: 'completed',
+          predictionId: 'read',
+          checkpointId: 'stop',
+          experimentApplied: true,
+        },
+      },
+    }))
+    renderApp()
+    expect(screen.getByRole('heading', { name: '本课带走' })).toBeVisible()
+    expect(screen.getByText('事实不在问题里时，先取得工具结果，再形成有依据的回答。')).toBeVisible()
+    expect(screen.getByRole('link', { name: '对照 Pi：结果回到下一轮' })).toBeVisible()
+    expect(within(screen.getByRole('navigation', { name: 'Lesson 目录' })).getByRole('link', { name: '本课小结' })).not.toHaveAttribute('aria-disabled')
+  })
+
   it('redirects an unknown lesson instead of showing mismatched content', () => {
     renderApp('/learn/not-a-real-lesson')
     expect(screen.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeVisible()

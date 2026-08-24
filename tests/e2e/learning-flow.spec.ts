@@ -25,6 +25,9 @@ test('completes the first lesson and persists progress', async ({ page }) => {
   await expect(traceDetail(page, '无法从现有结果确认发布端口；任务已停止。')).toBeVisible()
   await page.getByRole('button', { name: '说明缺少依据并停止' }).click()
   await expect(page.getByText(/你抓住了因果链/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: '本课带走' })).toBeVisible()
+  await expect(page.getByText('事实不在问题里时，先取得工具结果，再形成有依据的回答。')).toBeVisible()
+  await expect(page.getByRole('link', { name: '对照 Pi：结果回到下一轮' })).toBeVisible()
   await expect(page.getByLabel('已完成 1 课，共 10 课')).toBeVisible()
   await page.reload()
   await expect(page.getByLabel('已完成 1 课，共 10 课')).toBeVisible()
@@ -161,6 +164,17 @@ test('finds a term by ordinary explanation and returns to its first lesson', asy
   await expect(page.getByRole('heading', { name: '1 个术语' })).toBeVisible()
   await page.getByRole('link', { name: '首次出现：结果回到下一轮' }).click()
   await expect(page.getByRole('heading', { name: '让 Pi 读出项目名称，再回答' })).toBeVisible()
+})
+
+test('opens a lesson term as a prefiltered glossary result', async ({ page }) => {
+  await page.getByRole('button', { name: '先读取工作区' }).click()
+  await page.getByRole('button', { name: '启动任务' }).click()
+  await page.getByRole('link', { name: '在术语索引中查看 Agent loop' }).click()
+  await expect(page).toHaveURL(/#\/glossary\?term=Agent(?:%20|\+)loop$/)
+  await expect(page.getByRole('searchbox', { name: '搜索术语' })).toHaveValue('Agent loop')
+  await expect(page.getByRole('heading', { name: '2 个术语' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Agent loop', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Pi agent loop', exact: true })).toBeVisible()
 })
 
 test('keeps the lesson orientation visible at 390px', async ({ page }) => {

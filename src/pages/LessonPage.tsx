@@ -30,6 +30,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
   const previous = trackLessons[lessonIndex - 1]
   const next = trackLessons[lessonIndex + 1]
   const nextTrackLesson = lesson.track === 'dsh' ? lessonsByTrack.pi[0] : undefined
+  const contrastLesson = lessons.find(candidate => candidate.id === lesson.recap.contrastLessonId)!
   const sourceUpstream = upstreams[lesson.track]
   const continueLesson = home && data.lastLesson !== undefined && data.lastLesson !== lesson.slug
     ? lessonsBySlug.get(data.lastLesson)
@@ -193,7 +194,12 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
           </div>
           <p>{lesson.explanation}</p>
           <dl className="term-list">
-            {lesson.terms.map(item => <div key={item.term}><dt>{item.term}</dt><dd>{item.definition}</dd></div>)}
+            {lesson.terms.map(item => (
+              <div key={item.term}>
+                <dt><Link to={`/glossary?term=${encodeURIComponent(item.term)}`} aria-label={`在术语索引中查看 ${item.term}`}>{item.term}<ArrowRight aria-hidden="true" /></Link></dt>
+                <dd>{item.definition}</dd>
+              </div>
+            ))}
           </dl>
         </section>
       )}
@@ -220,6 +226,36 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
           </div>
           {state.phase === 'failed' && <p className="checkpoint-feedback is-error" role="alert">{lesson.checkpoint.retry}</p>}
           {state.phase === 'completed' && <p className="checkpoint-feedback is-success" role="status">{lesson.checkpoint.success}</p>}
+        </section>
+      )}
+
+      {state.phase === 'completed' && (
+        <section className="lesson-recap" id="lesson-recap" aria-labelledby="lesson-recap-heading">
+          <div className="lesson-recap-heading">
+            <span aria-hidden="true">06</span>
+            <div>
+              <h2 id="lesson-recap-heading">本课带走</h2>
+              <p>把刚才的操作压缩成下次能直接使用的判断。</p>
+            </div>
+          </div>
+          <div className="lesson-recap-grid">
+            <div>
+              <h3>核心原则</h3>
+              <p>{lesson.recap.principle}</p>
+            </div>
+            <div>
+              <h3>排查时先问</h3>
+              <p>{lesson.recap.debugPrompt}</p>
+            </div>
+          </div>
+          <div className="lesson-recap-contrast">
+            <div>
+              <h3>对照另一条路线</h3>
+              <p>{lesson.recap.contrast}</p>
+            </div>
+            <Link to={lessonPath(contrastLesson)}>对照 {contrastLesson.track === 'dsh' ? 'DSH' : 'Pi'}：{contrastLesson.navLabel}<ArrowRight aria-hidden="true" /></Link>
+          </div>
+          <p className="lesson-next-reason"><strong>接下来：</strong>{lesson.recap.nextReason}</p>
         </section>
       )}
 

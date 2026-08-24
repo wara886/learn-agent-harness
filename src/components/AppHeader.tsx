@@ -1,4 +1,4 @@
-import { BookOpen, Network, Radar, Search, Trash2, X } from 'lucide-react'
+import { BookOpen, LibraryBig, Network, Radar, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { lessons, lessonPath } from '../domain/lessons.ts'
@@ -11,6 +11,7 @@ export function AppHeader() {
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const onLearningPath = location.pathname === '/' || location.pathname.startsWith('/learn/')
   const completed = lessons.filter(lesson => {
     const value = data.lessons[lesson.slug]
     return typeof value === 'object' && value !== null && 'phase' in value && value.phase === 'completed'
@@ -97,13 +98,17 @@ export function AppHeader() {
               </nav>
             )}
           </div>
-          <Link className="text-action" to="/" aria-label="学习路径">
+          <Link className="text-action" to="/" aria-label="学习路径" aria-current={onLearningPath ? 'page' : undefined}>
             <BookOpen aria-hidden="true" />
             <span>学习路径</span>
           </Link>
-          <Link className="text-action" to="/map" aria-label="架构地图">
+          <Link className="text-action" to="/map" aria-label="架构地图" aria-current={location.pathname === '/map' ? 'page' : undefined}>
             <Network aria-hidden="true" />
             <span>架构地图</span>
+          </Link>
+          <Link className="text-action" to="/glossary" aria-label="术语索引" aria-current={location.pathname === '/glossary' ? 'page' : undefined}>
+            <LibraryBig aria-hidden="true" />
+            <span>术语索引</span>
           </Link>
           <button className="icon-action" type="button" onClick={resetAll} title="清除全部进度">
             <Trash2 aria-hidden="true" />

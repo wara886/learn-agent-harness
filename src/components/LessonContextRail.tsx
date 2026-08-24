@@ -6,7 +6,7 @@ import { useProgress } from '../domain/progress.tsx'
 
 export const lessonSections = [
   { id: 'mental-model', label: '心智模型' },
-  { id: 'run-it', label: '运行代码' },
+  { id: 'run-it', label: '运行演示' },
   { id: 'execution-trace', label: '执行轨迹' },
   { id: 'source-walkthrough', label: '源码拆解' },
   { id: 'architecture-connection', label: '架构联系' },

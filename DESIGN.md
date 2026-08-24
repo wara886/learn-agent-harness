@@ -19,6 +19,7 @@ colors:
   cobalt-hover: "#3549c6"
   cobalt-soft: "#eef0ff"
   orange: "#c94b2c"
+  orange-dark: "#a33b24"
   orange-soft: "#fff0eb"
   experiment-bg: "#4a2923"
   experiment-text: "#ffd8cb"
@@ -103,7 +104,7 @@ The palette combines cool telemetry paper and white reading surfaces with graphi
 
 ### Secondary
 
-- **Experiment Orange** (`#c94b2c`) names changed input and Pi track identity; the console experiment action uses dark warm brown (`#4a2923`) with pale orange text (`#ffd8cb`).
+- **Experiment Orange** (`#c94b2c`) names changed input and Pi track identity; **Deep Orange** (`#a33b24`) keeps small Pi labels readable on paper; the console experiment action uses dark warm brown (`#4a2923`) with pale orange text (`#ffd8cb`).
 - **Result Amber** (`#805500`) and **Soft Amber** (`#fff1c7`) mark the resolved trace; **Success Green** (`#087a55`) and **Soft Green** (`#e2f5ed`) mark completion and successful feedback.
 
 ### Neutral
@@ -171,6 +172,7 @@ General surfaces and controls use a restrained 4 px radius. Command buttons and 
 - **Breadcrumb:** Show hierarchy and current location above the task; course switching remains in the directory.
 - **Skip link:** Make `跳到课程内容` the first keyboard-focusable control, keep it offscreen until focus, and target the focusable lesson `main` landmark at `#main-content`.
 - **Course map:** Group by track, preserve the vertical progress line within each group, show the task's state change, and use a clear "进入任务" command rather than card-like tiles.
+- **Glossary:** Use one scan-oriented row per term with a plain-language definition, first lesson, and fixed-source evidence. Search and framework filters stay above the list; terms never become decorative cards.
 
 ### Lesson Header
 
@@ -190,9 +192,10 @@ Place the source walkthrough and plain-language architecture connection after ob
 
 ### Do:
 
-- **Do** keep the course directory obvious while preserving the task, expected result, approximate time, prediction, current state, and main action in the first lesson viewport.
+- **Do** keep the course directory obvious while preserving the task, expected result, approximate time, learning goals, and start of the mental model in the first lesson viewport.
 - **Do** reuse the same interaction sequence across DSH and Pi while keeping track labels, counts, terminology, and source evidence distinct.
 - **Do** preserve readable text, stable geometry, visible focus, and complete 390 px and 200% zoom paths.
+- **Do** keep the mobile mental-model circuit in a compact 2 × 2 grid so the runnable task remains close to the lesson orientation.
 - **Do** use motion only for a running state or focus transfer to newly available content, and honor reduced-motion preferences.
 
 ### Don't:

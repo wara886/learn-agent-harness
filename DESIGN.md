@@ -2,22 +2,22 @@
 name: Learn Agent Harness
 description: A task-first interactive classroom for understanding Agent harness behavior.
 colors:
-  paper: "#f5f7fa"
+  paper: "#f7f7f5"
   surface: "#ffffff"
-  surface-muted: "#edf1f6"
-  ink: "#131722"
-  muted: "#5c6675"
-  line: "#d4dbe5"
-  line-strong: "#9ba8b9"
+  surface-muted: "#f3f3f0"
+  ink: "#242424"
+  muted: "#666666"
+  line: "#e0dfdb"
+  line-strong: "#a8adb7"
   graphite: "#151a24"
   graphite-raised: "#202735"
   graphite-line: "#465166"
   on-graphite-muted: "#bac4d3"
   on-graphite-accent: "#aebcff"
-  cobalt: "#3157e8"
-  cobalt-dark: "#1d3db8"
-  cobalt-hover: "#2447cf"
-  cobalt-soft: "#e9edff"
+  cobalt: "#485bd1"
+  cobalt-dark: "#3549c6"
+  cobalt-hover: "#3549c6"
+  cobalt-soft: "#eef0ff"
   orange: "#c94b2c"
   orange-soft: "#fff0eb"
   experiment-bg: "#4a2923"
@@ -89,7 +89,7 @@ This direction is confirmed for the DSH and Pi beta as of 2026-08-23. Cool telem
 - DSH and Pi share one interaction grammar while remaining distinct learning tracks.
 - Status uses stable position, text, icon, and color together.
 - A persistent course directory establishes the full learning structure without replacing the runnable first screen.
-- Every lesson uses stable numbered sections: `01 预测` and `02 观察` are always present; `04 解释` appears after the first observation; `03 迁移` appears after the changed-input experiment and precedes `04` in document order once mounted.
+- Every lesson follows the same order: goals, mental model, `01 预测`, `02 执行轨迹`, source walkthrough, `04 架构联系`, then `05 理解检查` after the changed-input experiment.
 
 ## Colors
 
@@ -97,9 +97,9 @@ The palette combines cool telemetry paper and white reading surfaces with graphi
 
 ### Primary
 
-- **Action Cobalt** (`#3157e8`) marks the main operation, active DSH requests, selected controls, progress, and current navigation.
-- **Deep Cobalt** (`#1d3db8`) supplies readable accent text; **Hover Cobalt** (`#2447cf`) supplies the primary-button hover state.
-- **Soft Cobalt** (`#e9edff`) carries checkpoint and active-state backgrounds.
+- **Action Cobalt** (`#485bd1`) marks the main operation, active DSH requests, selected controls, progress, and current navigation.
+- **Deep Cobalt** (`#3549c6`) supplies readable accent text and primary-button hover state.
+- **Soft Cobalt** (`#eef0ff`) carries checkpoint and active-state backgrounds.
 
 ### Secondary
 
@@ -108,9 +108,9 @@ The palette combines cool telemetry paper and white reading surfaces with graphi
 
 ### Neutral
 
-- **Paper** (`#f5f7fa`) is the page background; **Surface** (`#ffffff`) is reserved for controls, focused work areas, and trace containers.
-- **Graphite** (`#151a24`) carries the global header and prediction console; **Ink** (`#131722`) carries headings and primary text.
-- **Line** (`#d4dbe5`) and **Strong Line** (`#9ba8b9`) establish instrument-like hierarchy on flat surfaces.
+- **Paper** (`#f7f7f5`) is the page background; **Surface** (`#ffffff`) is reserved for controls, focused work areas, and trace containers.
+- **Graphite** (`#151a24`) carries the global header and prediction console; **Ink** (`#242424`) carries headings and primary text.
+- **Line** (`#e0dfdb`) and **Strong Line** (`#a8adb7`) establish instrument-like hierarchy on flat surfaces.
 - **Focus Blue** (`#005fcc`) provides the 3 px visible focus outline; focus never relies on color alone.
 
 **The Redundant Status Rule.** Color never carries status alone. Pair every state color with a short verb phrase, icon, or stable labeled position.
@@ -134,13 +134,15 @@ The palette combines cool telemetry paper and white reading surfaces with graphi
 
 ## Layout
 
-The 72 px sticky graphite header uses a maximum 1360 px inner width. Desktop lesson routes use a maximum 1400 px shell with a 292 px course directory and a flexible content column; course-map and evidence pages use a narrower 920 px reading container. The lesson content uses a compact run header and bordered telemetry strip followed by a two-column workbench with the dark prediction console on the left and the numbered trace rail on the right.
+The 72 px sticky graphite header uses a maximum 1360 px inner width. Desktop lesson routes use a maximum 1380 px three-column shell: a 240 px course directory, a reading column capped at 820 px, and a 220 px lesson context rail. Course-map and evidence pages use a narrower reading container. The lesson content uses a compact run header and bordered telemetry strip, a clickable mental-model circuit, and a two-column workbench with the dark prediction console on the left and the numbered trace rail on the right.
 
-The course directory is the single navigation model. It groups every lesson under DeepSeek Harness or Pi, shows the current lesson and completion state, and links to the stage overview. On desktop, its panel stays visible beneath the global header and scrolls independently when the full directory exceeds the viewport. A breadcrumb above the lesson states `学习路径 / 当前轨道 / 当前课` without duplicating course switching controls.
+The course directory is the primary navigation model. It groups every lesson as framework, chapter, then lesson; only the active chapter expands. Each lesson shows its concise task question, current location, and completion state. On desktop, the directory stays visible beneath the global header and scrolls independently when needed. A breadcrumb above the lesson states `学习路径 / 当前轨道 / 当前课` without duplicating course switching controls.
+
+The right context rail lists the current lesson sections, reports reading progress, and keeps the current section selected through ScrollSpy. Sections that require a completed run remain unavailable until their content exists. Hide this rail below 1180 px; the lesson remains complete without it.
 
 The course map remains secondary navigation and never replaces the runnable first screen. It groups lessons by track, gives each group a track heading and count, and presents lessons as a vertical progress chain within that group. Do not flatten DSH and Pi lessons into one undifferentiated catalog.
 
-At 820 px the course directory becomes a sticky 48 px disclosure above the content. It starts collapsed and expands its full tree inline rather than covering the page with a drawer; the expanded tree stays within the viewport. The workbench collapses to one column at the same breakpoint. At 560 px, the expanded directory becomes one column, while the lesson's DOM and visual order remain task, action, trace, explanation, then optional depth; controls become full width and the primary action remains fully visible in the 390 x 844 first viewport. Fixed control heights, reserved hint space, and stable trace rows prevent state changes from shifting the layout.
+At 820 px the course directory becomes a sticky 48 px disclosure above the content. It starts collapsed and expands its full tree inline rather than covering the page with a drawer; the expanded tree stays within the viewport. The workbench collapses to one column at the same breakpoint. At 560 px, the expanded directory becomes one column, while the lesson order remains goals, mental model, action, trace, source walkthrough, architecture connection, transfer check, then optional depth. Controls become full width; fixed control heights, reserved hint space, and stable trace rows prevent state changes from shifting the layout.
 
 ## Elevation & Depth
 
@@ -163,7 +165,8 @@ General surfaces and controls use a restrained 4 px radius. Command buttons and 
 
 ### Navigation
 
-- **Course directory:** Group all lessons by track, retain concise task questions, and combine active and completed states without relying on color alone.
+- **Course directory:** Group lessons by framework and chapter, expand one chapter at a time, retain concise task questions, and combine active and completed states without relying on color alone.
+- **Lesson context rail:** Link to stable section ids, identify the visible section, show progress and key concepts, and disable links to content that has not been unlocked.
 - **Mobile directory:** Use an inline disclosure labeled `课程目录 · 当前轨道 课号/总数`; do not use a modal drawer for the current course count.
 - **Breadcrumb:** Show hierarchy and current location above the task; course switching remains in the directory.
 - **Skip link:** Make `跳到课程内容` the first keyboard-focusable control, keep it offscreen until focus, and target the focusable lesson `main` landmark at `#main-content`.
@@ -171,17 +174,17 @@ General surfaces and controls use a restrained 4 px radius. Command buttons and 
 
 ### Lesson Header
 
-Keep the title block compact: track abbreviation and current/total lesson count, one balanced task title, one plain-language question, then a three-item metadata list for expected result, estimated time, and local run mode. Use icons as secondary cues while retaining the text labels.
+Keep the title block compact: track abbreviation and current/total lesson count, one balanced task title, one plain-language question, a one-line outcome, and no more than three questions the learner should answer. Follow it with expected result, estimated time, difficulty, minimal implementation size, prerequisite, and local run mode. Use icons as secondary cues while retaining text labels.
 
 ### Task Workbench
 
-Every track reuses one teaching loop: prediction, main run, three-row trace, one changed input, and a transfer checkpoint. The Pi tool-result lesson uses this same loop to show `toolCall` → `ToolResultMessage` → next assistant answer; the changed result must visibly change the next answer rather than becoming an isolated fact panel.
+Every track reuses one teaching loop: why, clickable mental model, prediction, main run, three-row trace, source walkthrough, architecture connection, one changed input, and a transfer checkpoint. The Pi tool-result lesson uses this same loop to show `toolCall` → `ToolResultMessage` → next assistant answer; the changed result must visibly change the next answer rather than becoming an isolated fact panel.
 
 The trace always reserves all three rows and numbers them `01` through `03`. Current request, changed input, and resolved result use cobalt, orange, and amber backgrounds respectively, while labels and details state the transition in words. Green is reserved for completed state and successful feedback. Pi lessons reuse this trace to show tool-result round trips, application-message conversion, and Extension reload without introducing track-specific controls. After the initial run changes from running to observed at 560 px and below, move keyboard focus to the "任务过程" heading and position that heading below the sticky navigation immediately. Do not focus a transient result row.
 
 ### Progressive Disclosure
 
-Place the plain-language explanation and transfer checkpoint after observation. Keep minimal code and fixed-source evidence in separate collapsed drawers after the learning path; opening them must not be required to complete a lesson.
+Place the source walkthrough and plain-language architecture connection after observation. Split the teaching implementation into at most three trace-aligned excerpts with concept, implementation symbol, and related architecture terms; call the excerpts teaching pseudocode and keep the real fixed-commit location visually distinct. Link to the fixed-source evidence page. Keep the full minimal implementation and detailed evidence in separate collapsed drawers after the learning path; opening them must not be required to complete a lesson.
 
 ## Do's and Don'ts
 

@@ -1,7 +1,10 @@
-import { ArrowLeft, ArrowRight, ChevronDown, ChevronRight, Clock3, FlaskConical, Play, RotateCcw, Target, Zap } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookCheck, ChevronDown, ChevronRight, Clock3, Code2, FlaskConical, Gauge, GitBranch, Play, RotateCcw, Target } from 'lucide-react'
 import { useEffect, useReducer, useRef } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { CourseNavigation } from '../components/CourseNavigation.tsx'
+import { LessonContextRail, lessonSections } from '../components/LessonContextRail.tsx'
+import { MentalModel } from '../components/MentalModel.tsx'
+import { SourceWalkthrough } from '../components/SourceWalkthrough.tsx'
 import { runnerStatusLabel, TracePanel } from '../components/TracePanel.tsx'
 import { claimsById, upstreams } from '../domain/claims.ts'
 import { lessonTracks, lessons, lessonsBySlug, lessonsByTrack, lessonPath, type Lesson } from '../domain/lessons.ts'
@@ -31,6 +34,11 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
   const continueLesson = home && data.lastLesson !== undefined && data.lastLesson !== lesson.slug
     ? lessonsBySlug.get(data.lastLesson)
     : undefined
+  const difficulty = lessonIndex < 2 ? '入门' : lessonIndex < 4 ? '进阶' : '深入'
+  const minimalLoc = lesson.minimalCode.split('\n').length
+  const prerequisite = previous?.navLabel ?? '会读基础 TypeScript'
+  const continueSection = lessonSections.find(section => section.id === data.lastSection)?.label
+  const hasObserved = state.phase === 'observed' || state.experimentApplied
 
   useEffect(() => {
     saveLesson(lesson.slug, state)
@@ -80,7 +88,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
       {!storageAvailable && <div className="storage-notice" role="status">本次进度不会保存；当前课程仍可完整运行。</div>}
       {continueLesson && (
         <div className="continue-strip">
-          <span>上次停在“{continueLesson.navLabel}”</span>
+          <span>上次停在“{continueLesson.navLabel}”{continueSection ? `的“${continueSection}”` : ''}</span>
           <Link to={lessonPath(continueLesson)}>继续上次任务 <ArrowRight aria-hidden="true" /></Link>
         </div>
       )}
@@ -98,17 +106,35 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
           <span>RUN {track.shortLabel}-{String(lessonIndex + 1).padStart(2, '0')}</span>
           <span>第 {lessonIndex + 1} 课 / 共 {trackLessons.length} 课</span>
         </div>
-        <h1>{lesson.title}</h1>
-        <p className="lesson-question">{lesson.question}</p>
+        <div className="task-intro-grid">
+          <div>
+            <h1>{lesson.title}</h1>
+            <p className="lesson-question">{lesson.question}</p>
+            <p className="lesson-core">一句话理解：{lesson.outcome}</p>
+          </div>
+          <section className="lesson-objectives" aria-labelledby="lesson-objectives-heading">
+            <h2 id="lesson-objectives-heading">学完这一课，你应该能够回答</h2>
+            <ol>
+              <li>{lesson.question}</li>
+              <li>{lesson.prediction.prompt}</li>
+              <li>{lesson.checkpoint.prompt}</li>
+            </ol>
+          </section>
+        </div>
         <dl className="task-facts">
           <div><dt><Target aria-hidden="true" />你会得到</dt><dd>{lesson.outcome}</dd></div>
           <div><dt><Clock3 aria-hidden="true" />预计用时</dt><dd>{lesson.minutes} 分钟</dd></div>
-          <div><dt><Zap aria-hidden="true" />运行方式</dt><dd>本地概念演示</dd></div>
+          <div><dt><Gauge aria-hidden="true" />难度</dt><dd>{difficulty}</dd></div>
+          <div><dt><Code2 aria-hidden="true" />最小实现</dt><dd>{minimalLoc} LOC</dd></div>
+          <div><dt><BookCheck aria-hidden="true" />前置知识</dt><dd>{prerequisite}</dd></div>
+          <div><dt><GitBranch aria-hidden="true" />运行方式</dt><dd>本地概念演示</dd></div>
         </dl>
       </header>
 
+      <MentalModel lesson={lesson} />
+
       <div className="workbench">
-        <section className="decision-panel" aria-labelledby="prediction-heading">
+        <section className="decision-panel" id="run-it" aria-labelledby="prediction-heading">
           <div className="panel-heading">
             <span className="panel-code" aria-hidden="true">01</span>
             <div className="panel-title-copy">
@@ -157,11 +183,26 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
         <TracePanel lesson={lesson} state={state} />
       </div>
 
+      {hasObserved && <SourceWalkthrough lesson={lesson} />}
+
+      {hasObserved && (
+        <section className="understanding" id="architecture-connection" aria-labelledby="understanding-heading">
+          <div className="understanding-heading">
+            <span aria-hidden="true">04</span>
+            <h2 id="understanding-heading">把变化连接到架构</h2>
+          </div>
+          <p>{lesson.explanation}</p>
+          <dl className="term-list">
+            {lesson.terms.map(item => <div key={item.term}><dt>{item.term}</dt><dd>{item.definition}</dd></div>)}
+          </dl>
+        </section>
+      )}
+
       {(state.phase === 'checking' || state.phase === 'failed' || state.phase === 'completed') && (
-        <section className="checkpoint" aria-labelledby="checkpoint-heading">
+        <section className="checkpoint" id="check-understanding" aria-labelledby="checkpoint-heading">
           <div className="checkpoint-heading">
-            <span aria-hidden="true">03</span>
-            <div><h2 id="checkpoint-heading">换一个场景试试</h2><p>{lesson.checkpoint.prompt}</p></div>
+            <span aria-hidden="true">05</span>
+            <div><h2 id="checkpoint-heading">换一个场景检查理解</h2><p>{lesson.checkpoint.prompt}</p></div>
           </div>
           <div className="checkpoint-options">
             {lesson.checkpoint.options.map(option => (
@@ -179,19 +220,6 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
           </div>
           {state.phase === 'failed' && <p className="checkpoint-feedback is-error" role="alert">{lesson.checkpoint.retry}</p>}
           {state.phase === 'completed' && <p className="checkpoint-feedback is-success" role="status">{lesson.checkpoint.success}</p>}
-        </section>
-      )}
-
-      {(state.phase === 'observed' || state.experimentApplied) && (
-        <section className="understanding" aria-labelledby="understanding-heading">
-          <div className="understanding-heading">
-            <span aria-hidden="true">04</span>
-            <h2 id="understanding-heading">把刚才的变化说清楚</h2>
-          </div>
-          <p>{lesson.explanation}</p>
-          <dl className="term-list">
-            {lesson.terms.map(item => <div key={item.term}><dt>{item.term}</dt><dd>{item.definition}</dd></div>)}
-          </dl>
         </section>
       )}
 
@@ -225,6 +253,7 @@ function LessonExperience({ lesson, home }: { lesson: Lesson; home: boolean }) {
             : <Link to="/map"><span><small>查看全貌</small>返回课程地图</span><ArrowRight aria-hidden="true" /></Link>}
       </nav>
       </main>
+      <LessonContextRail lesson={lesson} state={state} />
     </div>
   )
 }

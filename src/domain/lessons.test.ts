@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { claims, claimsById, factBaseline, piFactBaseline, sourceUrl, upstreams } from './claims.ts'
-import { lessons } from './lessons.ts'
+import { chapterForLesson, lessonChapters, lessons } from './lessons.ts'
 
 describe('frozen lesson content', () => {
   it('loads five DSH lessons and five Pi lessons', () => {
@@ -38,5 +38,12 @@ describe('frozen lesson content', () => {
 
   it('keeps each lesson within the three-term budget', () => {
     for (const lesson of lessons) expect(lesson.terms.length).toBeLessThanOrEqual(3)
+  })
+
+  it('assigns every lesson to one framework chapter', () => {
+    expect(lessonChapters).toHaveLength(4)
+    expect(lessonChapters.flatMap(chapter => chapter.lessonIds)).toHaveLength(lessons.length)
+    expect(new Set(lessonChapters.flatMap(chapter => chapter.lessonIds)).size).toBe(lessons.length)
+    for (const lesson of lessons) expect(chapterForLesson(lesson).track).toBe(lesson.track)
   })
 })

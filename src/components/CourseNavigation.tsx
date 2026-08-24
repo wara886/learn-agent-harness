@@ -1,7 +1,7 @@
-import { Check, ChevronDown, Circle, ListTree, Map } from 'lucide-react'
-import { useState } from 'react'
+import { Check, ChevronDown, ChevronRight, Circle, ListTree, Map } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { lessonPath, lessonTracks, lessonsByTrack, type Lesson } from '../domain/lessons.ts'
+import { chapterForLesson, lessonChapters, lessonPath, lessonTracks, lessonsByTrack, lessonsForChapter, type Lesson } from '../domain/lessons.ts'
 import { useProgress } from '../domain/progress.tsx'
 
 function lessonCompleted(value: unknown): boolean {
@@ -9,10 +9,16 @@ function lessonCompleted(value: unknown): boolean {
 }
 
 export function CourseNavigation({ currentLesson }: { currentLesson: Lesson }) {
-  const { data } = useProgress()
+  const { data, setExpandedChapter } = useProgress()
   const [open, setOpen] = useState(false)
   const currentTrack = lessonTracks.find(track => track.id === currentLesson.track)!
   const currentIndex = lessonsByTrack[currentLesson.track].findIndex(lesson => lesson.id === currentLesson.id)
+  const activeChapter = chapterForLesson(currentLesson)
+  const expandedChapter = data.expandedChapter ?? activeChapter.id
+
+  useEffect(() => {
+    setExpandedChapter(activeChapter.id)
+  }, [activeChapter.id, setExpandedChapter])
 
   return (
     <aside className={`course-directory ${open ? 'is-open' : ''}`} data-track={currentLesson.track} aria-label="学习导航">
@@ -33,21 +39,40 @@ export function CourseNavigation({ currentLesson }: { currentLesson: Lesson }) {
 
       <div className="directory-panel" id="course-directory-panel">
         <header className="directory-heading">
-          <span>RUNBOOK · 学习路径</span>
+          <span>FRAMEWORK · 学习路径</span>
           <h2>课程目录</h2>
-          <p>先完成任务，再对照两套 Agent harness。</p>
+          <p>按框架与章节定位，每次只展开当前学习单元。</p>
         </header>
 
         <nav className="directory-nav" aria-label="课程目录">
-          {lessonTracks.map(track => (
+          {lessonTracks.map(track => {
+            const trackChapters = lessonChapters.filter(chapter => chapter.track === track.id)
+            return (
             <section className={track.id === currentLesson.track ? 'is-current' : ''} key={track.id} aria-labelledby={`directory-${track.id}`}>
               <div className="directory-track-heading">
                 <span className={`track-dot track-${track.id}`} aria-hidden="true" />
                 <h3 id={`directory-${track.id}`}>{track.label}</h3>
                 <small>{lessonsByTrack[track.id].length} 课</small>
               </div>
-              <ol>
-                {lessonsByTrack[track.id].map((lesson, index) => {
+              <div className="directory-chapters">
+              {trackChapters.map(chapter => {
+                const chapterLessons = lessonsForChapter(chapter)
+                const completeCount = chapterLessons.filter(lesson => lessonCompleted(data.lessons[lesson.slug])).length
+                const expanded = expandedChapter === chapter.id
+                return (
+                <section className="directory-chapter" key={chapter.id}>
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    aria-controls={`chapter-${chapter.id}`}
+                    onClick={() => setExpandedChapter(chapter.id)}
+                  >
+                    {expanded ? <ChevronDown aria-hidden="true" /> : <ChevronRight aria-hidden="true" />}
+                    <span><strong>{String(chapter.index).padStart(2, '0')} · {chapter.title}</strong><small>{completeCount} / {chapterLessons.length}</small></span>
+                  </button>
+                  {expanded && <ol id={`chapter-${chapter.id}`}>
+                {chapterLessons.map(lesson => {
+                  const index = lessonsByTrack[track.id].findIndex(candidate => candidate.id === lesson.id)
                   const completed = lessonCompleted(data.lessons[lesson.slug])
                   const active = lesson.id === currentLesson.id
                   return (
@@ -70,9 +95,14 @@ export function CourseNavigation({ currentLesson }: { currentLesson: Lesson }) {
                     </li>
                   )
                 })}
-              </ol>
+                  </ol>}
+                </section>
+                )
+              })}
+              </div>
             </section>
-          ))}
+            )
+          })}
         </nav>
 
         <Link className="directory-overview" to="/map" onClick={() => setOpen(false)}>

@@ -1,7 +1,7 @@
 # M4 五人发布可用性测试脚本
 
 > 测试对象：`https://wara886.github.io/learn-agent-harness/`
-> 发布基线：`v0.5.0-beta.1`
+> 学习界面候选：`ui@4b76974fefacfb4073af97645c40891baa70454d`（`index-D5pibPDI.css`、`index-DAmYA9Iv.js`）
 > 参与者：5 名符合目标用户定义、未参与产品设计的人
 > 单人时长：15 至 20 分钟
 
@@ -17,6 +17,7 @@
 ## 准备
 
 - 为每人使用新的浏览器访客窗口，确认页面顶部进度为 `0/10`。
+- 五场测试期间不得部署会改变课程或前端构建产物的提交。仅研究记录或测试工具发生变化时，确认线上仍加载 `index-D5pibPDI.css` 和 `index-DAmYA9Iv.js` 后可以继续；任一资源文件名变化都要更新发布候选并重新开始这一批记录。
 - 至少两人使用手机或 `390 x 844` 等效窄屏，至少两人使用桌面浏览器。
 - 用匿名编号 `P01` 至 `P05` 记录，不收集姓名、账号或联系方式。
 - 主持人只读任务，不解释按钮、术语、正确答案或页面结构。
@@ -72,7 +73,16 @@
 
 ## 录入与汇总
 
-将结果写入 `research/m4-usability-results.json`，未测试字段保持 `null`。运行：
+每场结束后，从模板创建一个临时记录文件并填写真实观察：
+
+```sh
+cp research/m4-session-template.json /tmp/P01.json
+pnpm record:m4 -- /tmp/P01.json
+```
+
+把模板中的 `participantId` 改为本场编号，将所有 `null` 改成实际结果。完整记录默认不能覆盖；纠正已确认的录入错误时使用 `pnpm record:m4 -- /tmp/P01.json --replace`，并在提交说明中写明原因。
+
+五场完成后运行：
 
 ```sh
 pnpm test:m4

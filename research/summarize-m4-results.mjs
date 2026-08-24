@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url'
 
 const requiredSessionIds = ['P01', 'P02', 'P03', 'P04', 'P05']
 
-function isCompletedSession(session) {
+export function isCompletedSession(session) {
   return typeof session.targetUserConfirmed === 'boolean'
     && typeof session.device === 'string'
     && session.device.length > 0
@@ -21,6 +21,13 @@ function isCompletedSession(session) {
 export function summarizeM4(data) {
   if (data?.schemaVersion !== 1 || !Array.isArray(data.sessions)) {
     throw new Error('Expected M4 schemaVersion 1 with a sessions array')
+  }
+
+  const participantIds = data.sessions.map(session => session?.participantId)
+  if (participantIds.length !== requiredSessionIds.length
+    || new Set(participantIds).size !== requiredSessionIds.length
+    || participantIds.some(id => !requiredSessionIds.includes(id))) {
+    throw new Error('Expected exactly one session for each participant P01 through P05')
   }
 
   const sessionsById = new Map(data.sessions.map(session => [session.participantId, session]))

@@ -70,7 +70,8 @@ export function MentalModel({ lesson }: { lesson: Lesson }) {
                 onClick={() => setActiveIndex(index)}
               >
                 <Icon aria-hidden="true" />
-                <span>{node.label}</span>
+                <span className="model-label">{node.label}</span>
+                <small className="model-step" aria-hidden="true">{String(index + 1).padStart(2, '0')}</small>
               </button>
               {index < nodes.length - 1 && <span className="model-arrow" aria-hidden="true"><ArrowRight /><ArrowDown /></span>}
             </div>

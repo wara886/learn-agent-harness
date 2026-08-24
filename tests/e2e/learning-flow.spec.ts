@@ -149,6 +149,18 @@ test('shows framework chapters and the current location on desktop', async ({ pa
   await expect(directory.getByRole('link', { name: /压缩旧上下文/ })).toBeVisible()
   await expect(page.getByRole('navigation', { name: '当前位置' })).toContainText('DeepSeek Harness')
   await expect(page.getByRole('navigation', { name: 'Lesson 目录' })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Lesson 目录' }).getByRole('link', { name: '运行演示' })).toBeVisible()
+})
+
+test('finds a term by ordinary explanation and returns to its first lesson', async ({ page }) => {
+  await page.getByRole('link', { name: '术语索引' }).click()
+  await expect(page.getByRole('heading', { name: 'Agent 术语索引' })).toBeVisible()
+  await expect(page.getByRole('link', { name: '术语索引' })).toHaveAttribute('aria-current', 'page')
+  await page.getByRole('searchbox', { name: '搜索术语' }).fill('工具执行后')
+  await expect(page.getByRole('heading', { name: 'ToolResultMessage' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '1 个术语' })).toBeVisible()
+  await page.getByRole('link', { name: '首次出现：结果回到下一轮' }).click()
+  await expect(page.getByRole('heading', { name: '让 Pi 读出项目名称，再回答' })).toBeVisible()
 })
 
 test('keeps the lesson orientation visible at 390px', async ({ page }) => {
@@ -190,6 +202,7 @@ test('keeps every release viewport free of page overflow', async ({ page }) => {
     '/#/learn/pi-agent-message-conversion',
     '/#/learn/pi-extension-tool-registration',
     '/#/map',
+    '/#/glossary',
   ]
   for (const viewport of [
     { width: 390, height: 844 },
@@ -258,7 +271,11 @@ test('has no serious accessibility violations in initial navigation states', asy
   await expectNoSeriousViolations()
   await page.goto('/#/learn/pi-tool-result-round-trip')
   await expectNoSeriousViolations()
+  await page.goto('/#/glossary')
+  await page.getByRole('searchbox', { name: '搜索术语' }).fill('工具执行后')
+  await expectNoSeriousViolations()
   await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#/learn/pi-tool-result-round-trip')
   await page.getByRole('button', { name: /课程目录.*Pi/ }).click()
   await expectNoSeriousViolations()
 })

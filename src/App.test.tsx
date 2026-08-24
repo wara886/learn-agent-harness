@@ -48,6 +48,23 @@ describe('task-first application', () => {
     expect(directory).toHaveTextContent('压缩旧上下文')
   })
 
+  it('indexes course terms by plain-language explanation and framework', () => {
+    renderApp('/glossary')
+    expect(screen.getByRole('heading', { name: 'Agent 术语索引' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: '29 个术语' })).toBeVisible()
+    expect(screen.getAllByRole('link', { name: '首次出现：先查再答' })[0]).toBeVisible()
+
+    fireEvent.change(screen.getByRole('searchbox', { name: '搜索术语' }), { target: { value: '工具执行后' } })
+    expect(screen.getByRole('heading', { name: 'ToolResultMessage' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: '1 个术语' })).toBeVisible()
+
+    fireEvent.change(screen.getByRole('searchbox', { name: '搜索术语' }), { target: { value: '' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Pi' }))
+    expect(screen.getByRole('heading', { name: '15 个术语' })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Agent loop' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Pi agent loop' })).toBeVisible()
+  })
+
   it('redirects an unknown lesson instead of showing mismatched content', () => {
     renderApp('/learn/not-a-real-lesson')
     expect(screen.getByRole('heading', { name: '找出发布端口，并说明依据' })).toBeVisible()

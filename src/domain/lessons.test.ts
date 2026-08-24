@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { claims, claimsById, factBaseline, piFactBaseline, sourceUrl, upstreams } from './claims.ts'
+import { glossaryEntries } from './glossary.ts'
 import { chapterForLesson, lessonChapters, lessons } from './lessons.ts'
 
 describe('frozen lesson content', () => {
@@ -45,5 +46,16 @@ describe('frozen lesson content', () => {
     expect(lessonChapters.flatMap(chapter => chapter.lessonIds)).toHaveLength(lessons.length)
     expect(new Set(lessonChapters.flatMap(chapter => chapter.lessonIds)).size).toBe(lessons.length)
     for (const lesson of lessons) expect(chapterForLesson(lesson).track).toBe(lesson.track)
+  })
+
+  it('gives every introduced term a course and source-evidence route', () => {
+    expect(glossaryEntries).toHaveLength(29)
+    expect(new Set(glossaryEntries.map(entry => entry.term)).size).toBe(glossaryEntries.length)
+    for (const entry of glossaryEntries) {
+      expect(entry.firstLesson.terms.some(item => item.term === entry.term)).toBe(true)
+      expect(claimsById.has(entry.claimId)).toBe(true)
+      expect(entry.sourcePath.length).toBeGreaterThan(0)
+      expect(entry.sourceSymbol.length).toBeGreaterThan(0)
+    }
   })
 })

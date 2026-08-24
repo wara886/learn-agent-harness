@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppHeader } from './components/AppHeader.tsx'
 import { ProgressProvider } from './domain/progress.tsx'
 import { EvidencePage } from './pages/EvidencePage.tsx'
+import { GlossaryPage } from './pages/GlossaryPage.tsx'
 import { LessonPage } from './pages/LessonPage.tsx'
 import { MapPage } from './pages/MapPage.tsx'
 
@@ -23,6 +24,7 @@ export function App() {
           <Route path="/" element={<LessonPage home />} />
           <Route path="/learn/:slug" element={<LessonPage />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/glossary" element={<GlossaryPage />} />
           <Route path="/evidence/:claimId" element={<EvidencePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

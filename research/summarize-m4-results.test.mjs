@@ -40,4 +40,12 @@ describe('M4 usability gate', () => {
       gate: 'PASS',
     })
   })
+
+  it('rejects duplicate or unknown participant records', () => {
+    const duplicate = ['P01', 'P02', 'P03', 'P04', 'P04'].map(id => session(id))
+    expect(() => summarizeM4({ schemaVersion: 1, sessions: duplicate })).toThrow(/exactly one session/)
+
+    const unknown = ['P01', 'P02', 'P03', 'P04', 'P06'].map(id => session(id))
+    expect(() => summarizeM4({ schemaVersion: 1, sessions: unknown })).toThrow(/exactly one session/)
+  })
 })

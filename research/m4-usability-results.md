@@ -1,6 +1,6 @@
 # M4 五人发布可用性测试结果
 
-> 构建版本：`v0.5.0-beta.1`
+> 学习界面候选：`ui@4b76974fefacfb4073af97645c40891baa70454d`（`index-D5pibPDI.css`、`index-DAmYA9Iv.js`）
 > 当前状态：等待 5 名真实目标用户测试
 
 ## 门结果

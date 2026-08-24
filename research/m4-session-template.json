@@ -1,0 +1,13 @@
+{
+  "participantId": "P01",
+  "targetUserConfirmed": null,
+  "device": null,
+  "browser": null,
+  "firstResultSeconds": null,
+  "foundFirstResultUnaided": null,
+  "explainedStateChange": null,
+  "transferQuestionPassed": null,
+  "usedFacilitatorHelp": null,
+  "observations": [],
+  "quotes": []
+}

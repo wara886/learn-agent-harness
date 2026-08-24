@@ -1,8 +1,8 @@
 # DSH 与 Pi 双轨十课实施状态
 
 > 更新日期：2026-08-24
-> 分支：`codex/lesson-recaps`
-> 当前阶段：双轨十课学习闭环与术语索引完成，M4 真人测试待执行
+> 分支：`codex/m4-recording-gate`
+> 当前阶段：双轨十课已上线，M4 发布候选已冻结，等待 5 场真人测试
 
 ## 已交付
 
@@ -27,7 +27,7 @@
 | 事实透明 | 状态对齐的教学源码拆解、默认折叠的完整最小实现、固定提交 claim 证据页、教学限定 | SourceWalkthrough、EvidencePage |
 | 响应式与无障碍 | 三个目标视口、键盘主路径、文本状态、reduced motion、axe serious/critical 0 | Playwright、截图 |
 | Safari 与 VoiceOver | Safari 可访问性树、VoiceOver 开关状态、预测控件与任务结果读取 | `research/accessibility-audit-2026-08-22.md` |
-| M4 测试工具 | 固定主持人脚本、5 人匿名空白记录、可复算 PASS/FAIL 门禁 | `research/m4-usability-*`、`pnpm test:m4` |
+| M4 测试工具 | 固定候选提交、主持人脚本、单场校验录入、防覆盖、5 人匿名记录、可复算 PASS/FAIL 门禁 | `research/m4-*`、`pnpm record:m4`、`pnpm test:m4` |
 
 ## 当前验证
 

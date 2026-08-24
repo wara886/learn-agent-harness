@@ -1,6 +1,10 @@
 {
   "schemaVersion": 1,
-  "buildVersion": "v0.5.0-beta.1",
+  "buildVersion": "ui@4b76974fefacfb4073af97645c40891baa70454d",
+  "uiAssets": [
+    "assets/index-D5pibPDI.css",
+    "assets/index-DAmYA9Iv.js"
+  ],
   "siteUrl": "https://wara886.github.io/learn-agent-harness/",
   "sessions": [
     {

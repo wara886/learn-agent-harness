@@ -66,6 +66,14 @@ export const lessonSchema = z.object({
 
 export type Lesson = z.infer<typeof lessonSchema>
 
+export interface LessonChapter {
+  id: string
+  track: UpstreamId
+  index: number
+  title: string
+  lessonIds: string[]
+}
+
 const lessonInput: Lesson[] = [
   {
     id: 'lesson-01-tool-first-answer',
@@ -641,6 +649,23 @@ export const lessonsBySlug = new Map(lessons.map(lesson => [lesson.slug, lesson]
 export const lessonsByTrack: Record<UpstreamId, Lesson[]> = {
   dsh: lessons.filter(lesson => lesson.track === 'dsh'),
   pi: lessons.filter(lesson => lesson.track === 'pi'),
+}
+
+export const lessonChapters: LessonChapter[] = [
+  { id: 'dsh-runtime', track: 'dsh', index: 1, title: '运行与能力', lessonIds: ['lesson-01-tool-first-answer', 'lesson-02-log-to-model-view', 'lesson-03-register-and-remove-tool'] },
+  { id: 'dsh-context', track: 'dsh', index: 2, title: '上下文与编排', lessonIds: ['lesson-04-compaction-checkpoint', 'lesson-05-workflow-subagents'] },
+  { id: 'pi-runtime', track: 'pi', index: 1, title: '消息与工具', lessonIds: ['lesson-pi-01-tool-result-round-trip', 'lesson-pi-02-agent-message-conversion', 'lesson-pi-03-extension-tool-registration'] },
+  { id: 'pi-state', track: 'pi', index: 2, title: '会话与资源', lessonIds: ['lesson-pi-04-session-tree', 'lesson-pi-05-resource-skills'] },
+]
+
+export function chapterForLesson(lesson: Lesson): LessonChapter {
+  const chapter = lessonChapters.find(candidate => candidate.lessonIds.includes(lesson.id))
+  if (chapter === undefined) throw new Error(`Missing chapter for ${lesson.id}`)
+  return chapter
+}
+
+export function lessonsForChapter(chapter: LessonChapter): Lesson[] {
+  return chapter.lessonIds.map(id => lessons.find(lesson => lesson.id === id)!)
 }
 
 export function lessonPath(lesson: Lesson): string {

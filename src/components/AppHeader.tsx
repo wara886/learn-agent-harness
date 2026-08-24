@@ -1,4 +1,4 @@
-import { BookOpen, Radar, Search, Trash2, X } from 'lucide-react'
+import { BookOpen, Network, Radar, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { lessons, lessonPath } from '../domain/lessons.ts'
@@ -97,9 +97,13 @@ export function AppHeader() {
               </nav>
             )}
           </div>
-          <Link className="text-action" to="/map" aria-label="学习路径">
+          <Link className="text-action" to="/" aria-label="学习路径">
             <BookOpen aria-hidden="true" />
             <span>学习路径</span>
+          </Link>
+          <Link className="text-action" to="/map" aria-label="架构地图">
+            <Network aria-hidden="true" />
+            <span>架构地图</span>
           </Link>
           <button className="icon-action" type="button" onClick={resetAll} title="清除全部进度">
             <Trash2 aria-hidden="true" />

@@ -3,15 +3,16 @@ import { claims, claimsById, factBaseline, piFactBaseline, sourceUrl, upstreams 
 import { lessons } from './lessons.ts'
 
 describe('frozen lesson content', () => {
-  it('loads three DSH lessons and three Pi lessons', () => {
-    expect(lessons).toHaveLength(6)
-    expect(new Set(lessons.map(lesson => lesson.slug)).size).toBe(6)
-    expect(lessons.filter(lesson => lesson.track === 'dsh')).toHaveLength(3)
-    expect(lessons.filter(lesson => lesson.track === 'pi')).toHaveLength(3)
+  it('loads five DSH lessons and five Pi lessons', () => {
+    expect(lessons).toHaveLength(10)
+    expect(new Set(lessons.map(lesson => lesson.slug)).size).toBe(10)
+    expect(lessons.filter(lesson => lesson.track === 'dsh')).toHaveLength(5)
+    expect(lessons.filter(lesson => lesson.track === 'pi')).toHaveLength(5)
   })
 
   it('uses only approved claims from each lesson track', () => {
-    expect(claims).toHaveLength(9)
+    expect(claims).toHaveLength(13)
+    expect(new Set(claims.map(claim => claim.id)).size).toBe(claims.length)
     for (const lesson of lessons) {
       for (const claimId of lesson.claimIds) {
         const claim = claimsById.get(claimId)
@@ -23,11 +24,12 @@ describe('frozen lesson content', () => {
     expect(lessons.filter(lesson => lesson.track === 'dsh').every(lesson => (
       lesson.claimIds.every(id => claimsById.get(id)?.baseline === factBaseline)
     ))).toBe(true)
+    expect(new Set(lessons.flatMap(lesson => lesson.claimIds))).toEqual(new Set(claims.map(claim => claim.id)))
   })
 
   it('pins current and planned Pi claims to their own upstream revision', () => {
     const piClaims = claims.filter(claim => claim.upstream === 'pi')
-    expect(piClaims).toHaveLength(3)
+    expect(piClaims).toHaveLength(5)
     expect(piClaims.every(claim => claim.baseline === piFactBaseline)).toBe(true)
     expect(sourceUrl(piClaims[0]!, piClaims[0]!.paths[0]!.path)).toContain(
       `${upstreams.pi.repository}/blob/${piFactBaseline}`,

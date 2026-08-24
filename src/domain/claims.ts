@@ -102,6 +102,30 @@ const claimInputs = z.array(claimSchema).parse([
     reviewStatus: 'approved',
   },
   {
+    id: 'dsh-compaction-surface-replacement',
+    upstream: 'dsh',
+    title: 'DSH 用摘要检查点替换旧 surface 区段',
+    statement: 'BasicCompactionEngine 在压力或显式请求下压缩选定的旧 surface 区段，记录 compaction 生命周期与摘要，再追加带 replace 操作的检查点消息；旧事件仍保留在日志中。',
+    caveat: '压缩依赖模型容量、策略、稳定 surface 和摘要成功；失败时可能保留原 surface 并记录失败。课程只演示一次成功的确定性替换。',
+    paths: [
+      { path: 'packages/compaction/compaction-basic/src/index.ts', symbol: 'BasicCompactionEngine' },
+      { path: 'packages/compaction/compaction-basic/src/region.ts', symbol: 'compactSurfaceRegion' },
+    ],
+    reviewStatus: 'approved',
+  },
+  {
+    id: 'dsh-workflow-subagent-lifecycle',
+    upstream: 'dsh',
+    title: 'Workflow 把 agent() 调用桥接到子 Agent',
+    statement: 'Worker-thread workflow 的 agent() 调用由 host 桥接到具名 subagent provider；已发布的 child 以 workflow/agent-start 与 workflow/agent-end 成对记录，workflow/end 在整次运行结算时发出。',
+    caveat: '子 Agent 失败、取消、并发上限和结构化输出都有独立分支；课程只演示两个独立调查任务和一次汇总，不代表所有任务都适合并行。',
+    paths: [
+      { path: 'packages/workflow/workflow-worker-thread/src/host.ts', symbol: 'WorkerRun.startChild' },
+      { path: 'packages/workflow/workflow/src/index.ts', symbol: 'WorkflowEngine lifecycle events' },
+    ],
+    reviewStatus: 'approved',
+  },
+  {
     id: 'pi-agent-loop-tool-round-trip',
     upstream: 'pi',
     title: 'Pi 将工具结果追加到后续轮次',
@@ -134,6 +158,30 @@ const claimInputs = z.array(claimSchema).parse([
     paths: [
       { path: 'packages/coding-agent/src/core/extensions/loader.ts', symbol: 'createExtensionAPI.registerTool' },
       { path: 'packages/coding-agent/src/core/agent-session.ts', symbol: 'AgentSession._refreshToolRegistry/reload' },
+    ],
+    reviewStatus: 'approved',
+  },
+  {
+    id: 'pi-session-jsonl-tree',
+    upstream: 'pi',
+    title: 'Pi 用 JSONL 条目和 parentId 保存会话树',
+    statement: 'SessionManager 把会话保存为追加式 JSONL；条目的 id/parentId 形成树，leaf 指向当前位置。branch() 移动 leaf，下一次 append 从该位置创建新分支，而不改写旧分支。',
+    caveat: '课程不展开格式迁移、compaction entry、branch summary、custom entry 或损坏文件恢复；当前结论固定在 session format v3 的实现。',
+    paths: [
+      { path: 'packages/coding-agent/src/core/session-manager.ts', symbol: 'SessionManager' },
+      { path: 'packages/coding-agent/docs/session-format.md', symbol: 'Tree Structure' },
+    ],
+    reviewStatus: 'approved',
+  },
+  {
+    id: 'pi-resource-loader-skills',
+    upstream: 'pi',
+    title: 'Pi 从项目、全局目录和 Packages 发现 Skills',
+    statement: 'DefaultResourceLoader 汇总启用的 skill 资源并调用 loadSkills；Skills 可以来自全局目录、项目目录、settings、CLI 或 Pi package，默认只把名称与描述放入上下文，完整 SKILL.md 按需读取。',
+    caveat: '来源优先级、过滤、诊断和项目信任会改变最终资源集合；Skill 是提示与配套资源，不等于自动获得新的宿主权限。',
+    paths: [
+      { path: 'packages/coding-agent/src/core/resource-loader.ts', symbol: 'DefaultResourceLoader.reload/getSkills' },
+      { path: 'packages/coding-agent/docs/skills.md', symbol: 'Skill Locations / How Skills Work' },
     ],
     reviewStatus: 'approved',
   },

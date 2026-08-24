@@ -135,6 +135,40 @@ claims:
       - lesson-03-register-and-remove-tool
     reviewStatus: approved
 
+  - id: dsh-compaction-surface-replacement
+    upstream: dsh
+    statement: >-
+      BasicCompactionEngine 在压力或显式请求下压缩选定的旧 surface 区段，记录 compaction 生命周期与摘要，再追加带 replace 操作的检查点消息；旧事件仍保留在日志中。
+    classification: product-fact
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
+    evidence:
+      - path: packages/compaction/compaction-basic/src/index.ts
+        symbol: BasicCompactionEngine
+      - path: packages/compaction/compaction-basic/src/region.ts
+        symbol: compactSurfaceRegion
+    caveat: >-
+      压缩依赖模型容量、策略、稳定 surface 和摘要成功；失败时可能保留原 surface 并记录失败。课程只演示一次成功的确定性替换。
+    usedBy:
+      - lesson-04-compaction-checkpoint
+    reviewStatus: approved
+
+  - id: dsh-workflow-subagent-lifecycle
+    upstream: dsh
+    statement: >-
+      Worker-thread workflow 的 agent() 调用由 host 桥接到具名 subagent provider；已发布的 child 以 workflow/agent-start 与 workflow/agent-end 成对记录，workflow/end 在整次运行结算时发出。
+    classification: product-fact
+    baseline: b150a551b8d465e31e418e1b2eaf5e79bbb7d28e
+    evidence:
+      - path: packages/workflow/workflow-worker-thread/src/host.ts
+        symbol: WorkerRun.startChild
+      - path: packages/workflow/workflow/src/index.ts
+        symbol: WorkflowEngine lifecycle events
+    caveat: >-
+      子 Agent 失败、取消、并发上限和结构化输出都有独立分支；课程只演示两个独立调查任务和一次汇总，不代表所有任务都适合并行。
+    usedBy:
+      - lesson-05-workflow-subagents
+    reviewStatus: approved
+
   - id: pi-agent-loop-tool-round-trip
     upstream: pi
     statement: >-
@@ -165,7 +199,8 @@ claims:
         symbol: streamAssistantResponse
     caveat: >-
       应用自定义消息必须自行转换或过滤；转换函数失败会中断低层循环，不能把 UI-only 消息直接发送给 Provider。
-    usedBy: []
+    usedBy:
+      - lesson-pi-02-agent-message-conversion
     reviewStatus: approved
 
   - id: pi-extension-tool-registration
@@ -181,5 +216,40 @@ claims:
         symbol: AgentSession._refreshToolRegistry/reload
     caveat: >-
       Pi 的 registerTool 返回 void，不是 DSH 风格的 exact disposer；撤下扩展工具依赖资源配置变化后 reload，而不是调用注册返回的清理函数。
-    usedBy: []
+    usedBy:
+      - lesson-pi-03-extension-tool-registration
+    reviewStatus: approved
+
+  - id: pi-session-jsonl-tree
+    upstream: pi
+    statement: >-
+      SessionManager 把会话保存为追加式 JSONL；条目的 id/parentId 形成树，leaf 指向当前位置。branch() 移动 leaf，下一次 append 从该位置创建新分支，而不改写旧分支。
+    classification: product-fact
+    baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
+    evidence:
+      - path: packages/coding-agent/src/core/session-manager.ts
+        symbol: SessionManager
+      - path: packages/coding-agent/docs/session-format.md
+        symbol: Tree Structure
+    caveat: >-
+      课程不展开格式迁移、compaction entry、branch summary、custom entry 或损坏文件恢复；当前结论固定在 session format v3 的实现。
+    usedBy:
+      - lesson-pi-04-session-tree
+    reviewStatus: approved
+
+  - id: pi-resource-loader-skills
+    upstream: pi
+    statement: >-
+      DefaultResourceLoader 汇总启用的 skill 资源并调用 loadSkills；Skills 可以来自全局目录、项目目录、settings、CLI 或 Pi package，默认只把名称与描述放入上下文，完整 SKILL.md 按需读取。
+    classification: product-fact
+    baseline: c49906ec77788625aacbdc53ebca6fbe65bd20f5
+    evidence:
+      - path: packages/coding-agent/src/core/resource-loader.ts
+        symbol: DefaultResourceLoader.reload/getSkills
+      - path: packages/coding-agent/docs/skills.md
+        symbol: Skill Locations / How Skills Work
+    caveat: >-
+      来源优先级、过滤、诊断和项目信任会改变最终资源集合；Skill 是提示与配套资源，不等于自动获得新的宿主权限。
+    usedBy:
+      - lesson-pi-05-resource-skills
     reviewStatus: approved

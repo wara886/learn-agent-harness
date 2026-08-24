@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { lessons } from '../../src/domain/lessons.ts'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/#/')
@@ -16,9 +17,9 @@ test('completes the first lesson and persists progress', async ({ page }) => {
   await expect(page.getByText('无法从现有结果确认发布端口；任务已停止。')).toBeVisible()
   await page.getByRole('button', { name: '说明缺少依据并停止' }).click()
   await expect(page.getByText(/你抓住了因果链/)).toBeVisible()
-  await expect(page.getByLabel('已完成 1 课，共 6 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 10 课')).toBeVisible()
   await page.reload()
-  await expect(page.getByLabel('已完成 1 课，共 6 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 10 课')).toBeVisible()
 })
 
 test('searches in problem language and runs the projection experiment', async ({ page }) => {
@@ -64,7 +65,7 @@ test('switches to Pi and completes the tool-result round trip', async ({ page })
   await expect(page.getByText('确定性演示改为回答 sandbox-demo，随后循环停止。')).toBeVisible()
   await page.getByRole('button', { name: '返回当前上下文并停止' }).click()
   await expect(page.getByText('没有工具调用或排队消息时，这次低层循环已经完成。')).toBeVisible()
-  await expect(page.getByLabel('已完成 1 课，共 6 课')).toBeVisible()
+  await expect(page.getByLabel('已完成 1 课，共 10 课')).toBeVisible()
 })
 
 test('keeps an application-only Pi message out of the provider request', async ({ page }) => {
@@ -89,11 +90,52 @@ test('reloads a Pi session after removing an Extension tool', async ({ page }) =
   await expect(page.getByText('对。Pi registerTool 返回 void；这条路径通过资源变化和 reload 重建工具表。', { exact: true })).toBeVisible()
 })
 
+test('keeps the DSH event log when compaction replaces the model surface', async ({ page }) => {
+  await page.goto('/#/learn/compaction-checkpoint')
+  await page.getByRole('button', { name: '写入摘要检查点并替换 surface 区段' }).click()
+  await page.getByRole('button', { name: '生成压缩检查点' }).click()
+  await expect(page.getByText('旧事件仍在日志；surface 使用 1 条摘要和 2 条最近消息。')).toBeVisible()
+  await page.getByRole('button', { name: '把摘要生成改为失败' }).click()
+  await expect(page.getByText('模型视图继续使用压缩前的持久 surface。')).toBeVisible()
+  await page.getByRole('button', { name: '查看仍然保留的 Session 事件日志' }).click()
+  await expect(page.getByText(/replace 改变模型 surface/)).toBeVisible()
+})
+
+test('settles DSH workflow children before returning the summary', async ({ page }) => {
+  await page.goto('/#/learn/workflow-subagents')
+  await page.getByRole('button', { name: '启动两个子 Agent，等待两者结算' }).click()
+  await page.getByRole('button', { name: '运行双调查 Workflow' }).click()
+  await expect(page.getByText('脚本组合两份结果，workflow/end 报告本次运行已完成。')).toBeVisible()
+  await page.getByRole('button', { name: '让文档审计返回失败' }).click()
+  await page.getByRole('button', { name: '先完成第一项，再把结果交给第二项' }).click()
+  await expect(page.getByText(/有数据依赖时应顺序推进/)).toBeVisible()
+})
+
+test('branches a Pi JSONL session without rewriting the old path', async ({ page }) => {
+  await page.goto('/#/learn/pi-session-tree')
+  await page.getByRole('button', { name: '把 leaf 移到 A，并追加新的 child' }).click()
+  await page.getByRole('button', { name: '创建另一条会话分支' }).click()
+  await expect(page.getByText('D 的 parentId 指向 A；当前路径变为 A → D。')).toBeVisible()
+  await page.getByRole('button', { name: '把 leaf 改回原分支 C' }).click()
+  await page.getByRole('button', { name: '从当前 leaf 沿 parentId 回到根' }).click()
+  await expect(page.getByText(/其他分支继续保存在同一个 Session 文件里/)).toBeVisible()
+})
+
+test('discovers a Pi project skill and loads its full instructions on demand', async ({ page }) => {
+  await page.goto('/#/learn/pi-resource-skills')
+  await page.getByRole('button', { name: '先发现名称与描述，需要时再读取全文' }).click()
+  await page.getByRole('button', { name: '重新加载项目资源' }).click()
+  await expect(page.getByText('系统提示只列名称与描述；发布任务匹配后再读取完整 SKILL.md。')).toBeVisible()
+  await page.getByRole('button', { name: '把 Skill 描述改得含糊' }).click()
+  await page.getByRole('button', { name: '用 Pi package 声明并分发这些资源' }).click()
+  await expect(page.getByText(/Pi package 可以声明 Extensions/)).toBeVisible()
+})
+
 test('shows the complete course directory and current location on desktop', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
   const directory = page.getByRole('navigation', { name: '课程目录' })
   await expect(directory).toBeVisible()
-  await expect(directory.getByRole('link')).toHaveCount(6)
+  await expect(directory.getByRole('link')).toHaveCount(10)
   await expect(directory.getByRole('link', { name: /先查再答/ })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('navigation', { name: '当前位置' })).toContainText('DeepSeek Harness')
 })
@@ -108,6 +150,16 @@ test('keeps the first task and action visible at 390px', async ({ page }) => {
   expect(actionBox!.y + actionBox!.height).toBeLessThanOrEqual(844)
   const bodyWidth = await page.locator('body').evaluate(element => element.scrollWidth)
   expect(bodyWidth).toBe(390)
+})
+
+test('keeps every lesson action in the first 390px viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  for (const lesson of lessons) {
+    await page.goto(`/#/learn/${lesson.slug}`)
+    const actionBox = await page.getByRole('button', { name: lesson.runLabel }).boundingBox()
+    expect(actionBox, lesson.slug).not.toBeNull()
+    expect(actionBox!.y + actionBox!.height, lesson.slug).toBeLessThanOrEqual(844)
+  }
 })
 
 test('keeps every release viewport free of page overflow', async ({ page }) => {
